@@ -1,13 +1,16 @@
 import mongoose from "mongoose";
 
-const videoSchema = new mongoose.Schema({
-  title: String,
-  description: String,
-  url: String,
-  user: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: "User",
+const videoSchema = new mongoose.Schema(
+  {
+    title: String,
+    description: String,
+    url: String,
+    user: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+    },
   },
-}, { timestamps: true });
+  { timestamps: true },
+);
 
 export default mongoose.model("Video", videoSchema);
