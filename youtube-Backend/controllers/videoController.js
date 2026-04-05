@@ -86,3 +86,27 @@ export const updateVideo = async (req, res) => {
     res.status(500).json({ message: error.message });
   }
 };
+
+// Delete video
+export const deleteVideo = async (req, res) => {
+  try {
+    const video = await Video.findById(req.params.id);
+
+    if (!video) {
+      return res.status(404).json({ message: "Video not found" });
+    }
+
+    if (video.user.toString() !== req.user) {
+      return res.status(401).json({ message: "Unauthorized" });
+    }
+
+    await video.deleteOne();
+
+    res.json({
+      message: "Video deleted successfully",
+    });
+
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
