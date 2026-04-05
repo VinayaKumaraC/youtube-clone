@@ -66,7 +66,7 @@ export const updateVideo = async (req, res) => {
       return res.status(404).json({ message: "Video not found" });
     }
 
-    // Check ownership
+    // Check owner
     if (video.user.toString() !== req.user) {
       return res.status(401).json({ message: "Unauthorized" });
     }
