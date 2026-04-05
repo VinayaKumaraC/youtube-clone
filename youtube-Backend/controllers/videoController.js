@@ -56,3 +56,33 @@ export const getVideoById = async (req, res) => {
     res.status(500).json({ message: error.message });
   }
 };
+
+// Update video
+export const updateVideo = async (req, res) => {
+  try {
+    const video = await Video.findById(req.params.id);
+
+    if (!video) {
+      return res.status(404).json({ message: "Video not found" });
+    }
+
+    // Check ownership
+    if (video.user.toString() !== req.user) {
+      return res.status(401).json({ message: "Unauthorized" });
+    }
+
+    video.title = req.body.title || video.title;
+    video.description = req.body.description || video.description;
+    video.url = req.body.url || video.url;
+
+    const updatedVideo = await video.save();
+
+    res.json({
+      message: "Video updated successfully",
+      updatedVideo,
+    });
+
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
