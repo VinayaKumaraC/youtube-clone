@@ -5,14 +5,17 @@ const authMiddleware = (req, res, next) => {
     let token = req.headers.authorization;
 
     if (!token) {
-      return res.status(401).json({ message: "No token provided" });
+      return res.status(401).json({
+        message: "No token provided",
+      });
     }
 
-    // Remove Bearer if exists
+    // Remove Bearer if present
     if (token.startsWith("Bearer ")) {
       token = token.replace("Bearer ", "");
     }
 
+    // Verify token
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
 
     req.user = decoded.id;
@@ -20,7 +23,9 @@ const authMiddleware = (req, res, next) => {
     next();
 
   } catch (error) {
-    res.status(401).json({ message: "Invalid token" });
+    res.status(401).json({
+      message: "Invalid token",
+    });
   }
 };
 
