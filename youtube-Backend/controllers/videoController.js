@@ -132,3 +132,25 @@ export const likeVideo = async (req, res) => {
     res.status(500).json({ message: error.message });
   }
 };
+
+// Dislike for video
+export const dislikeVideo = async (req, res) => {
+  try {
+    const video = await Video.findById(req.params.id);
+
+    if (!video) {
+      return res.status(404).json({ message: "Video not found" });
+    }
+
+    video.dislikes += 1;
+    await video.save();
+
+    res.json({
+      message: "Video disliked",
+      dislikes: video.dislikes,
+    });
+
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
