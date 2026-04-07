@@ -2,237 +2,245 @@ import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import axios from "axios";
 
-// Video page component
+// Video page component to display video details, comments, and interactions
 const VideoPage = () => {
   const { id } = useParams();
 
-  // State for video
   const [video, setVideo] = useState(null);
-
-  // State for new comment
-  const [comment, setComment] = useState("");
-
-  // State for all comments
   const [comments, setComments] = useState([]);
 
-  // State for editing comment
+  const [comment, setComment] = useState("");
   const [editId, setEditId] = useState(null);
   const [editText, setEditText] = useState("");
 
   const token = localStorage.getItem("token");
 
-  // Fetch video and comments on load
   useEffect(() => {
     fetchVideo();
     fetchComments();
   }, []);
 
-  // Get video details
+  // Fetch video
   const fetchVideo = async () => {
-    try {
-      const res = await axios.get(`http://localhost:9090/api/videos/${id}`);
-      setVideo(res.data);
-    } catch (error) {
-      console.log("Error fetching video:", error);
-    }
+    const res = await axios.get(`http://localhost:9090/api/videos/${id}`);
+    setVideo(res.data);
   };
 
-  // Get comments
+  // Fetch comments
   const fetchComments = async () => {
-    try {
-      const res = await axios.get(`http://localhost:9090/api/comments/${id}`);
-      setComments(res.data);
-    } catch (error) {
-      console.log("Error fetching comments:", error);
-    }
+    const res = await axios.get(`http://localhost:9090/api/comments/${id}`);
+    setComments(res.data);
   };
 
-  // Like video
+  // Like
   const handleLike = async () => {
-    try {
-      await axios.put(
-        `http://localhost:9090/api/videos/${id}/like`,
-        {},
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        },
-      );
-      fetchVideo(); // refresh UI
-    } catch (error) {
-      console.log("Like error:", error);
-    }
+    await axios.put(
+      `http://localhost:9090/api/videos/${id}/like`,
+      {},
+      { headers: { Authorization: `Bearer ${token}` } }
+    );
+    fetchVideo();
   };
 
-  // Dislike video
+  // Dislike
   const handleDislike = async () => {
-    try {
-      await axios.put(
-        `http://localhost:9090/api/videos/${id}/dislike`,
-        {},
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        },
-      );
-      fetchVideo();
-    } catch (error) {
-      console.log("Dislike error:", error);
-    }
+    await axios.put(
+      `http://localhost:9090/api/videos/${id}/dislike`,
+      {},
+      { headers: { Authorization: `Bearer ${token}` } }
+    );
+    fetchVideo();
   };
 
   // Add comment
   const addComment = async () => {
     if (!comment.trim()) return;
 
-    try {
-      await axios.post(
-        "http://localhost:9090/api/comments",
-        { videoId: id, text: comment },
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        },
-      );
+    await axios.post(
+      "http://localhost:9090/api/comments",
+      { videoId: id, text: comment },
+      { headers: { Authorization: `Bearer ${token}` } }
+    );
 
-      setComment("");
-      fetchComments();
-    } catch (error) {
-      console.log("Add comment error:", error);
-    }
+    setComment("");
+    fetchComments();
   };
 
   // Update comment
   const updateComment = async (commentId) => {
-    if (!editText.trim()) return;
-    try {
-      await axios.put(`http://localhost:9090/api/comments/${commentId}`,
-        { text: editText },
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        },
-      );
+    await axios.put(
+      `http://localhost:9090/api/comments/${commentId}`,
+      { text: editText },
+      { headers: { Authorization: `Bearer ${token}` } }
+    );
 
-      setEditId(null);
-      setEditText("");
-      fetchComments();
-    } catch (error) {
-      console.log("Update error:", error);
-    }
+    setEditId(null);
+    setEditText("");
+    fetchComments();
   };
 
   // Delete comment
   const deleteComment = async (commentId) => {
-    try {
-      await axios.delete(`http://localhost:9090/api/comments/${commentId}`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
+    await axios.delete(
+      `http://localhost:9090/api/comments/${commentId}`,
+      { headers: { Authorization: `Bearer ${token}` } }
+    );
 
-      fetchComments();
-    } catch (error) {
-      console.log("Delete error:", error);
-    }
+    fetchComments();
   };
 
-  // Loading state
-  if (!video) {
-    return <p className="text-white p-5">Loading...</p>;
-  }
+  if (!video) return <p className="text-white p-5">Loading...</p>;
 
   return (
     <div className="bg-black text-white min-h-screen p-5">
+
       {/* 🎬 Video Player */}
-      <video src={video.videoUrl} controls className="w-full rounded" />
+      <div className="max-w-4xl mx-auto">
+        <video
+          src={video.videoUrl}
+          controls
+          className="w-full rounded-lg"
+        />
 
-      {/* Title */}
-      <h2 className="text-xl mt-3">{video.title}</h2>
+        {/* 🎯 Title */}
+        <h2 className="text-xl font-semibold mt-3">
+          {video.title}
+        </h2>
 
-      {/*  Buttons */}
-      <div className="flex gap-3 mt-3">
-        <button onClick={handleLike} className="bg-gray-800 px-3 py-1 rounded">
-          👍 {video.likes}
-        </button>
+        {/* 📊 Channel + Buttons */}
+        <div className="flex justify-between items-center mt-4 flex-wrap gap-3">
 
-        <button
-          onClick={handleDislike}
-          className="bg-gray-800 px-3 py-1 rounded"
-        >
-          👎 {video.dislikes}
-        </button>
-      </div>
+          {/* Channel Info */}
+          <div className="flex items-center gap-3">
+            <img
+              src="https://i.pravatar.cc/40"
+              className="w-10 h-10 rounded-full"
+            />
 
-      {/* Comments Section */}
-      <div className="mt-5">
-        <h3 className="text-lg">Comments</h3>
+            <div>
+              <p className="font-semibold">{video.channel}</p>
+              <p className="text-gray-400 text-sm">1.2M subscribers</p>
+            </div>
 
-        {/* Add Comment */}
-        <div className="flex gap-2 mt-2">
-          <input
-            value={comment}
-            onChange={(e) => setComment(e.target.value)}
-            className="flex-1 bg-gray-800 p-2 rounded"
-            placeholder="Add a comment..."
-          />
+            <button className="bg-red-600 px-4 py-1 rounded-full ml-3">
+              Subscribe
+            </button>
+          </div>
 
-          <button onClick={addComment} className="bg-blue-500 px-4 rounded">
-            Post
-          </button>
+          {/* Like / Dislike */}
+          <div className="flex gap-3">
+            <button
+              onClick={handleLike}
+              className="bg-gray-800 px-4 py-1 rounded-full"
+            >
+              👍 {video.likes}
+            </button>
+
+            <button
+              onClick={handleDislike}
+              className="bg-gray-800 px-4 py-1 rounded-full"
+            >
+              👎 {video.dislikes}
+            </button>
+          </div>
+
         </div>
 
-        {/* Comment List */}
-        {comments.map((c) => (
-          <div key={c._id} className="bg-gray-900 p-2 mt-2 rounded">
-            {editId === c._id ? (
-              // ✏ Edit View
-              <div className="flex gap-2">
-                <input
-                  value={editText}
-                  onChange={(e) => setEditText(e.target.value)}
-                  className="flex-1 bg-gray-800 p-1 rounded"
-                />
+        {/* 📄 Description */}
+        <div className="bg-gray-900 p-3 rounded mt-4 text-sm">
+          {video.description || "No description available"}
+        </div>
 
-                <button
-                  onClick={() => updateComment(c._id)}
-                  className="bg-blue-500 px-4 rounded"
-                >
-                  Save
-                </button>
-              </div>
-            ) : (
-              // 👁 Normal View
-              <div className="flex justify-between items-center">
-                <p>{c.text}</p>
+        {/* 💬 Comments Section */}
+        <div className="mt-6">
 
-                <div className="flex gap-3">
-                  <button
-                    onClick={() => {
-                      setEditId(c._id);
-                      setEditText(c.text);
-                    }}
-                    className="text-blue-400"
-                  >
-                    Edit
-                  </button>
+          <h3 className="text-lg mb-3">
+            {comments.length} Comments
+          </h3>
 
-                  <button
-                    onClick={() => deleteComment(c._id)}
-                    className="text-red-400"
-                  >
-                    Delete
-                  </button>
-                </div>
-              </div>
-            )}
+          {/* Add Comment */}
+          <div className="flex gap-2 mb-4">
+            <input
+              value={comment}
+              onChange={(e) => setComment(e.target.value)}
+              className="flex-1 bg-gray-800 p-2 rounded"
+              placeholder="Add a comment..."
+            />
+
+            <button
+              onClick={addComment}
+              className="bg-blue-500 px-4 rounded"
+            >
+              Post
+            </button>
           </div>
-        ))}
+
+          {/* Comment List */}
+          {comments.map((c) => (
+            <div
+              key={c._id}
+              className="flex gap-3 bg-gray-900 p-3 rounded mb-2"
+            >
+              <img
+                src="https://i.pravatar.cc/40"
+                className="w-8 h-8 rounded-full"
+              />
+
+              <div className="flex-1">
+
+                {editId === c._id ? (
+                  <div className="flex gap-2">
+                    <input
+                      value={editText}
+                      onChange={(e) => setEditText(e.target.value)}
+                      className="flex-1 bg-gray-800 p-1 rounded"
+                    />
+
+                    {/* Save button for edited comment */}
+                    <button
+                      onClick={() => updateComment(c._id)}
+                      className="text-green-400"
+                    >
+                      Save
+                    </button>
+                  </div>
+                ) : (
+                  <>
+                    <p className="text-sm">{c.text}</p>
+
+                    <div className="flex gap-3 mt-1 text-sm">
+
+                      {/* Edit button for comment */}
+                      <button
+                        onClick={() => {
+                          setEditId(c._id);
+                          setEditText(c.text);
+                        }}
+                        className="text-blue-400"
+                      >
+                        Edit
+                      </button>
+
+                      {/* Delete button for comment */}
+                      <button
+                        onClick={() => deleteComment(c._id)}
+                        className="text-red-400"
+                      >
+                        Delete
+                      </button>
+
+                    </div>
+                  </>
+                )}
+
+              </div>
+            </div>
+          ))}
+
+        </div>
+
       </div>
+
     </div>
   );
 };
