@@ -1,13 +1,19 @@
 import { Link } from "react-router-dom";
 
-// Video card component
 const VideoCard = ({ video }) => {
   return (
     <Link to={`/video/${video._id}`}>
       <div className="cursor-pointer">
 
-        {/* Thumbnail (fallback UI if no thumbnail) */}
-        <div className="bg-gray-800 h-40 rounded-lg"></div>
+        {/* ✅ Thumbnail */}
+        <img
+          src={
+            video.thumbnail ||
+            "https://via.placeholder.com/300x180?text=No+Thumbnail"
+          }
+          alt="thumbnail"
+          className="rounded-lg w-full h-40 object-cover"
+        />
 
         {/* Details */}
         <div className="mt-2 flex gap-2">
@@ -24,15 +30,16 @@ const VideoCard = ({ video }) => {
               {video.title}
             </h3>
 
-            {/* User */}
+            {/* Channel / User */}
             <p className="text-gray-400 text-xs">
-              👤 {video.user?.email || "Unknown"}
+              {video.channel || video.user?.email || "Unknown"}
             </p>
 
-            {/* Likes */}
+            {/* Stats */}
             <p className="text-gray-500 text-xs">
-              👍 {video.likes || 0}
+              👁 {video.views || 0} • 👍 {video.likes || 0} • 👎 {video.dislikes || 0}
             </p>
+
           </div>
 
         </div>
