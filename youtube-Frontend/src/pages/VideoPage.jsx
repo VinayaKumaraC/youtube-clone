@@ -72,43 +72,50 @@ const VideoPage = () => {
   };
 
   // Show loading if video not yet fetched
-  if (!video) return <p>Loading...</p>;
+  if (!video) return <p className="text-white">Loading...</p>;
 
   return (
-    <div style={{ padding: "20px" }}>
-      
-      {/* Video title */}
-      <h2>{video.title}</h2>
+    <div className="bg-black text-white min-h-screen p-5">
 
-      {/* Video player */}
-      <video src={video.url} controls width="600" />
+      <h2 className="text-xl font-semibold mb-4">
+        {video.title}
+      </h2>
 
-      {/* Video description */}
-      <p>{video.description}</p>
-
-      {/* Like button */}
-      <button onClick={handleLike}>
-        👍 {video.likes}
-      </button>
-
-      <hr />
-
-      {/* Comment section */}
-      <h3>Comments</h3>
-
-      {/* Comment input */}
-      <textarea
-        value={comment}
-        onChange={(e) => setComment(e.target.value)}
-        placeholder="Add comment"
+      <video
+        src={video.url}
+        controls
+        className="w-full max-w-3xl rounded-lg"
       />
 
-      <br />
+      <p className="mt-3 text-gray-300">{video.description}</p>
 
-      {/* Submit comment */}
-      <button onClick={handleComment}>
-        Post
-      </button>
+      <div className="mt-4 space-x-4">
+        <button
+          onClick={handleLike}
+          className="bg-gray-800 px-4 py-2 rounded hover:bg-gray-700"
+        >
+          👍 {video.likes}
+        </button>
+      </div>
+
+      {/* Comments */}
+      <div className="mt-6">
+        <h3 className="text-lg">Comments</h3>
+
+        <textarea
+          className="w-full mt-2 p-2 bg-gray-900 border border-gray-700 rounded"
+          placeholder="Add comment"
+          value={comment}
+          onChange={(e) => setComment(e.target.value)}
+        />
+
+        <button
+          onClick={handleComment}
+          className="mt-2 bg-red-600 px-4 py-2 rounded hover:bg-red-500"
+        >
+          Post
+        </button>
+      </div>
     </div>
   );
 };

@@ -30,76 +30,68 @@ const Home = () => {
   );
 
   return (
-    <div style={{ display: "flex" }}>
-      
-      {/* Sidebar section */}
-      <div
-        style={{
-          width: "200px",
-          padding: "10px",
-          borderRight: "1px solid #ddd",
-        }}
-      >
-        <h3>Menu</h3>
-        <p>Home</p>
-        <p>Trending</p>
-        <p>Subscriptions</p>
+    <div className="flex bg-black text-white min-h-screen">
+
+      {/* Sidebar */}
+      <div className="w-56 bg-black border-r border-gray-800 p-4 hidden md:block">
+        <h2 className="text-lg font-semibold mb-4">Menu</h2>
+        <ul className="space-y-3 text-gray-300">
+          <li className="hover:text-white cursor-pointer">Home</li>
+          <li className="hover:text-white cursor-pointer">Trending</li>
+          <li className="hover:text-white cursor-pointer">Subscriptions</li>
+        </ul>
       </div>
 
-      {/* Main content area */}
-      <div style={{ flex: 1, padding: "20px" }}>
-        
-        {/* Header with title and search */}
-        <div style={{ display: "flex", marginBottom: "20px" }}>
-          <h2 style={{ marginRight: "20px" }}>🎥 YouTube Clone</h2>
+      {/* Main */}
+      <div className="flex-1">
 
-          {/* Search input */}
+        {/* Header */}
+        <div className="flex items-center justify-between p-4 border-b border-gray-800">
+          <h1 className="text-xl font-bold">🎥 YouTube Clone</h1>
+
+          {/* Search */}
           <input
             type="text"
-            placeholder="Search..."
+            placeholder="Search"
+            className="w-1/2 px-4 py-2 rounded-full bg-gray-900 border border-gray-700 outline-none"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            style={{ flex: 1, padding: "8px" }}
           />
 
-          {/* Navigation links */}
-          <Link to="/login" style={{ marginLeft: "10px" }}>
-            Login
-          </Link>
-          <Link to="/register" style={{ marginLeft: "10px" }}>
-            Register
-          </Link>
+          {/* Auth Links */}
+          <div className="space-x-4">
+            <Link to="/login" className="hover:text-red-500">Login</Link>
+            <Link to="/register" className="hover:text-red-500">Register</Link>
+          </div>
         </div>
 
-        {/* Video grid layout */}
-        <div
-          style={{
-            display: "grid",
-            gridTemplateColumns: "repeat(auto-fill, minmax(250px,1fr))",
-            gap: "20px",
-          }}
-        >
+        {/* Videos */}
+        <div className="p-5 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
           {filtered.map((video) => (
             <Link to={`/video/${video._id}`} key={video._id}>
               
-              {/* Single video card */}
-              <div
-                style={{
-                  border: "1px solid #ccc",
-                  padding: "10px",
-                  borderRadius: "10px",
-                }}
-              >
-                <h4>{video.title}</h4>
-                <p>{video.description}</p>
+              {/* Video Card */}
+              <div className="hover:scale-105 transition cursor-pointer">
+                
+                {/* Thumbnail (fake preview box) */}
+                <div className="bg-gray-800 h-40 rounded-lg"></div>
 
-                {/* Show uploader name */}
-                <p>👤 {video.user?.name}</p>
+                {/* Info */}
+                <div className="mt-2">
+                  <h3 className="font-semibold text-sm">
+                    {video.title}
+                  </h3>
+                  <p className="text-gray-400 text-xs">
+                    👤 {video.user?.name}
+                  </p>
+                </div>
+
               </div>
 
             </Link>
           ))}
         </div>
+
       </div>
     </div>
   );
