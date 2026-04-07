@@ -51,7 +51,7 @@ const Register = () => {
           onClick={handleRegister}
           className="bg-green-500 w-full p-2"
         >
-          Register
+          <h2 className="mb-4 text-lg font-semibold">Create your account</h2>
         </button>
       </div>
     </div>

@@ -7,13 +7,13 @@ import VideoCard from "../components/VideoCard";
 const Home = () => {
   const [videos, setVideos] = useState([]);
   const [search, setSearch] = useState("");
-  const [category, setCategory] = useState("All");
 
+  // Fetch videos
   useEffect(() => {
     fetchVideos();
   }, []);
 
-  // Fetch videos from backend
+  // Fetch all videos from the backend
   const fetchVideos = async () => {
     try {
       const res = await axios.get("http://localhost:9090/api/videos");
@@ -23,56 +23,41 @@ const Home = () => {
     }
   };
 
-  // Filter videos
-  const filteredVideos = videos.filter((v) =>
-    v.title.toLowerCase().includes(search.toLowerCase()) &&
-    (category === "All" || v.category === category)
+  // Filter
+  const filtered = videos.filter((v) =>
+    v.title.toLowerCase().includes(search.toLowerCase())
   );
 
+  // Render the home page with navbar, sidebar, search bar, and video grid
   return (
-    <div className="bg-black min-h-screen">
+    <div className="bg-black min-h-screen text-white">
 
-      {/* Navbar */}
       <Navbar />
 
       <div className="flex">
 
-        {/* Sidebar */}
         <Sidebar />
 
-        {/* Main Content */}
+        {/* Content */}
         <div className="flex-1 p-5">
 
-          {/* Filters */}
-          <div className="flex gap-3 mb-5 overflow-x-auto">
-            {["All", "React", "Music", "Gaming", "News", "Programming"].map((cat) => (
-              <button
-                key={cat}
-                onClick={() => setCategory(cat)}
-                className={`px-4 py-1 rounded-full ${
-                  category === cat
-                    ? "bg-white text-black"
-                    : "bg-gray-800 text-white"
-                }`}
-              >
-                {cat}
-              </button>
-            ))}
-          </div>
+          {/* Search */}
+          <input
+            placeholder="Search videos..."
+            className="mb-5 p-2 w-full bg-gray-900 border border-gray-700 rounded"
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+          />
 
-          {/* Video Grid */}
+          {/* Grid */}
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5">
-
-            {filteredVideos.map((video) => (
+            {filtered.map((video) => (
               <VideoCard key={video._id} video={video} />
             ))}
-
           </div>
 
         </div>
-
       </div>
-
     </div>
   );
 };

@@ -39,7 +39,7 @@ const Login = () => {
         />
 
         <button onClick={handleLogin} className="bg-blue-500 w-full p-2">
-          Login
+          <h2 className="mb-4 text-lg font-semibold">Sign in to YouTube Clone</h2>
         </button>
       </div>
     </div>
