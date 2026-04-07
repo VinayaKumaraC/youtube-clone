@@ -9,7 +9,7 @@ const Login = () => {
 
   const navigate = useNavigate();
 
-  // 🔐 Handle login
+  // Handle login
   const handleLogin = async (e) => {
     e.preventDefault();
 
