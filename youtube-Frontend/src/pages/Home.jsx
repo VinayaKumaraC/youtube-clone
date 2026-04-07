@@ -1,21 +1,36 @@
+import { useEffect, useState } from "react";
+import axios from "axios";
 import Navbar from "../components/Navbar";
 import Sidebar from "../components/Sidebar";
 import Filters from "../components/Filters";
 import VideoCard from "../components/VideoCard";
-import { videos } from "../data/videos";
-import { useState } from "react";
 
-// Home page component to display video list with filters
 const Home = () => {
+  const [videos, setVideos] = useState([]);
   const [filter, setFilter] = useState("All");
 
-  // Filter videos based on category
+  // 🔹 Fetch videos from backend
+  useEffect(() => {
+    fetchVideos();
+  }, []);
+
+  const fetchVideos = async () => {
+    try {
+      const res = await axios.get("http://localhost:9090/api/videos");
+      setVideos(res.data);
+    } catch (error) {
+      console.log("Error fetching videos:", error);
+    }
+  };
+
+  // 🔹 Filter logic
   const filteredVideos =
     filter === "All"
       ? videos
       : videos.filter((v) => v.category === filter);
-
-  return (
+      
+    // Home page component to display videos with filters, navbar, and sidebar  
+    return (
     <div className="bg-black min-h-screen">
 
       <Navbar />
@@ -24,7 +39,6 @@ const Home = () => {
 
         <Sidebar />
 
-        {/* Main content area with filters and video grid */}
         <div className="flex-1">
 
           <Filters setFilter={setFilter} />
