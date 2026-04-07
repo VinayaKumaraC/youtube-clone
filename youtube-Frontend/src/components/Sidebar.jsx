@@ -1,19 +1,10 @@
-// SIDEBAR COMPONENT
+// Sidebar component with navigation links
 const Sidebar = () => {
   return (
-    <div className="w-56 bg-black text-white p-4 hidden md:block">
-
-      <div className="space-y-4">
-
-        {/* Sidebar links */}
-        <p className="cursor-pointer hover:bg-gray-800 p-2 rounded">🏠 Home</p>
-        <p className="cursor-pointer hover:bg-gray-800 p-2 rounded">🔥 Trending</p>
-        <p className="cursor-pointer hover:bg-gray-800 p-2 rounded">📺 Subscriptions</p>
-        <p className="cursor-pointer hover:bg-gray-800 p-2 rounded">📚 Library</p>
-        <p className="cursor-pointer hover:bg-gray-800 p-2 rounded">🕒 History</p>
-
-      </div>
-
+    <div className="w-56 bg-black text-white h-screen p-3 hidden md:block">
+      <p className="mb-3">🏠 Home</p>
+      <p className="mb-3">🔥 Trending</p>
+      <p className="mb-3">📺 Subscriptions</p>
     </div>
   );
 };
