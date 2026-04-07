@@ -1,41 +1,42 @@
-import { useEffect, useState } from "react";
-import axios from "axios";
 import Navbar from "../components/Navbar";
+import Sidebar from "../components/Sidebar";
+import Filters from "../components/Filters";
 import VideoCard from "../components/VideoCard";
+import { videos } from "../data/videos";
+import { useState } from "react";
 
+// Home page component to display video list with filters
 const Home = () => {
-  //store all videos
-  const [videos, setVideos] = useState([]);
+  const [filter, setFilter] = useState("All");
 
-  // Fetch videos when component loads
-   useEffect(() => {
-    const fetchVideos = async () => {
-        //  API call to get videos
-      const res = await axios.get("http://localhost:9090/api/videos");
-      setVideos(res.data);
-    };
-    fetchVideos();
-  }, []);
+  // Filter videos based on category
+  const filteredVideos =
+    filter === "All"
+      ? videos
+      : videos.filter((v) => v.category === filter);
 
- return (
+  return (
     <div className="bg-black min-h-screen">
 
       <Navbar />
 
       <div className="flex">
 
-        {/* Sidebar */}
-        <div className="w-56 p-4 text-gray-300 hidden md:block">
-          <p className="mb-2">Home</p>
-          <p className="mb-2">Trending</p>
-          <p className="mb-2">Subscriptions</p>
-        </div>
+        <Sidebar />
 
-        {/* Videos */}
-        <div className="flex-1 p-5 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-          {videos.map((video) => (
-            <VideoCard key={video._id} video={video} />
-          ))}
+        {/* Main content area with filters and video grid */}
+        <div className="flex-1">
+
+          <Filters setFilter={setFilter} />
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5 p-5">
+
+            {filteredVideos.map((video) => (
+              <VideoCard key={video._id} video={video} />
+            ))}
+
+          </div>
+
         </div>
 
       </div>

@@ -1,83 +1,89 @@
 import { useState } from "react";
 import axios from "axios";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 
+// Register page component
 const Register = () => {
-  const [name, setName] = useState("");
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [message, setMessage] = useState("");
-
   const navigate = useNavigate();
 
-  // Handle register
-  const handleRegister = async (e) => {
-    e.preventDefault();
+  // Form state
+  const [username, setUsername] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
 
+  // Handle register
+  const handleRegister = async () => {
     try {
-      const res = await axios.post(
+      await axios.post(
         "http://localhost:9090/api/auth/register",
         {
-          name,
+          username,
           email,
           password,
         }
       );
 
-      setMessage(res.data.message);
+      alert("Registration successful");
 
-      // Redirect to login after success
-      setTimeout(() => {
-        navigate("/login");
-      }, 1500);
-
+      // Redirect to login
+      navigate("/login");
     } catch (error) {
-      setMessage(
-        error.response?.data?.message || "Registration failed"
-      );
+      alert("Error creating account");
     }
   };
 
   return (
-    <div>
-      <h2>Register</h2>
+    <div className="flex items-center justify-center h-screen bg-black text-white">
 
-      <form onSubmit={handleRegister}>
+      {/* Register Box */}
+      <div className="bg-gray-900 p-8 rounded-lg w-80 shadow-lg">
+
+        {/* Title */}
+        <h2 className="text-2xl mb-5 text-center font-semibold">
+          Create Account
+        </h2>
+
+        {/* Username */}
         <input
           type="text"
-          placeholder="Enter name"
-          value={name}
-          onChange={(e) => setName(e.target.value)}
-          required
+          placeholder="Username"
+          className="w-full mb-3 p-2 bg-gray-800 rounded outline-none"
+          onChange={(e) => setUsername(e.target.value)}
         />
 
-        <br /><br />
-
+        {/* Email */}
         <input
           type="email"
-          placeholder="Enter email"
-          value={email}
+          placeholder="Email"
+          className="w-full mb-3 p-2 bg-gray-800 rounded outline-none"
           onChange={(e) => setEmail(e.target.value)}
-          required
         />
 
-        <br /><br />
-
+        {/* Password */}
         <input
           type="password"
-          placeholder="Enter password"
-          value={password}
+          placeholder="Password"
+          className="w-full mb-4 p-2 bg-gray-800 rounded outline-none"
           onChange={(e) => setPassword(e.target.value)}
-          required
         />
 
-        <br /><br />
+        {/* Register button */}
+        <button
+          onClick={handleRegister}
+          className="w-full bg-red-500 p-2 rounded hover:bg-red-600"
+        >
+          Register
+        </button>
 
-        <button type="submit">Register</button>
-      </form>
+        {/* Redirect to login */}
+        <p className="mt-4 text-sm text-gray-400 text-center">
+          Already have an account?{" "}
+          <Link to="/login" className="text-blue-400">
+            Login
+          </Link>
+        </p>
 
-      {/* Show message */}
-      {message && <p>{message}</p>}
+      </div>
     </div>
   );
 };

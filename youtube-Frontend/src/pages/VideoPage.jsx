@@ -1,42 +1,63 @@
 import { useParams } from "react-router-dom";
-import { useEffect, useState } from "react";
-import axios from "axios";
-import Navbar from "../components/Navbar";
+import { videos } from "../data/videos";
+import { useState } from "react";
 
+// Video page component to display video details and comments
 const VideoPage = () => {
-  // Get video ID from URL
   const { id } = useParams();
 
-  // State to store video data
-  const [video, setVideo] = useState(null);
+  const video = videos.find((v) => v._id === id);
 
-  // Fetch video details when page loads
-   useEffect(() => {
-    const fetchVideo = async () => {
-      const res = await axios.get(`http://localhost:9090/api/videos/${id}`);
-      setVideo(res.data);
-    };
-    fetchVideo();
-  }, [id]);
+  const [comment, setComment] = useState("");
+  const [comments, setComments] = useState([]);
 
-  if (!video) return <p className="text-white">Loading...</p>;
+  // Add comment
+  const addComment = () => {
+    setComments([...comments, comment]);
+    setComment("");
+  };
 
   return (
-    <div className="bg-black text-white min-h-screen">
+    <div className="bg-black text-white min-h-screen p-5">
 
-      <Navbar />
+      <h2 className="text-xl">{video.title}</h2>
 
-      <div className="p-5">
-        <h2 className="text-xl mb-3">{video.title}</h2>
+      <video src={video.videoUrl} controls className="w-full mt-3" />
 
-        <video src={video.url} controls className="w-full max-w-3xl" />
+      <p className="mt-2">{video.description}</p>
 
-        <p className="mt-3 text-gray-400">{video.description}</p>
-
-        <button className="mt-4 bg-gray-800 px-4 py-2 rounded">
+      {/* Like/Dislike */}
+      <div className="mt-3 flex gap-3">
+        <button className="bg-gray-800 px-3 py-1 rounded">
           👍 {video.likes}
         </button>
+
+        <button className="bg-gray-800 px-3 py-1 rounded">
+          👎 {video.dislikes}
+        </button>
       </div>
+
+      {/* Comments */}
+      <div className="mt-5">
+        <h3>Comments</h3>
+
+        <input
+          value={comment}
+          onChange={(e) => setComment(e.target.value)}
+          className="bg-gray-800 p-2 w-full"
+          placeholder="Add comment"
+        />
+
+        {/* comment button */}
+        <button onClick={addComment} className="mt-2 bg-blue-500 px-3 py-1">
+          Post
+        </button>
+
+        {comments.map((c, i) => (
+          <p key={i} className="mt-2">{c}</p>
+        ))}
+      </div>
+
     </div>
   );
 };

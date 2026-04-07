@@ -1,24 +1,17 @@
 import { Link } from "react-router-dom";
 
+// Video card component to display video thumbnail and details
 const VideoCard = ({ video }) => {
   return (
     <Link to={`/video/${video._id}`}>
 
-      <div className="cursor-pointer hover:scale-105 transition">
+      <div className="cursor-pointer">
 
-        {/* Thumbnail */}
-        <div className="bg-gray-800 h-40 rounded-lg"></div>
+        <img src={video.thumbnail} className="rounded-lg" />
 
-        {/* Info */}
-        <div className="mt-2">
-          <h3 className="text-sm font-semibold text-white">
-            {video.title}
-          </h3>
-
-          <p className="text-xs text-gray-400">
-            👤 {video.user?.name}
-          </p>
-        </div>
+        <h3 className="text-white mt-2 text-sm">{video.title}</h3>
+        <p className="text-gray-400 text-xs">{video.channel}</p>
+        <p className="text-gray-500 text-xs">{video.views}</p>
 
       </div>
 

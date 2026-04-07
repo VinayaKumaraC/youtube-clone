@@ -1,72 +1,79 @@
 import { useState } from "react";
 import axios from "axios";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 
+// Login page component
 const Login = () => {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [message, setMessage] = useState("");
-
   const navigate = useNavigate();
 
-  // Handle login
-  const handleLogin = async (e) => {
-    e.preventDefault();
+  // State for form inputs
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
 
+  // Handle login
+  const handleLogin = async () => {
     try {
       const res = await axios.post(
         "http://localhost:9090/api/auth/login",
-        {
-          email,
-          password,
-        }
+        { email, password }
       );
 
-      // Save token
+      // Save token in local storage
       localStorage.setItem("token", res.data.token);
 
-      setMessage("Login successful");
+      alert("Login successful");
 
-      // Redirect to home
+      // Redirect to home page
       navigate("/");
-
     } catch (error) {
-      setMessage(
-        error.response?.data?.message || "Login failed"
-      );
+      alert("Invalid credentials");
     }
   };
 
   return (
-    <div>
-      <h2>Login</h2>
+    <div className="flex items-center justify-center h-screen bg-black text-white">
 
-      <form onSubmit={handleLogin}>
+      {/* Login Box */}
+      <div className="bg-gray-900 p-8 rounded-lg w-80 shadow-lg">
+
+        {/* Title */}
+        <h2 className="text-2xl mb-5 text-center font-semibold">
+          Sign in
+        </h2>
+
+        {/* Email input */}
         <input
           type="email"
-          placeholder="Enter email"
-          value={email}
+          placeholder="Email"
+          className="w-full mb-3 p-2 bg-gray-800 rounded outline-none"
           onChange={(e) => setEmail(e.target.value)}
-          required
         />
 
-        <br /><br />
-
+        {/* Password input */}
         <input
           type="password"
-          placeholder="Enter password"
-          value={password}
+          placeholder="Password"
+          className="w-full mb-4 p-2 bg-gray-800 rounded outline-none"
           onChange={(e) => setPassword(e.target.value)}
-          required
         />
 
-        <br /><br />
+        {/* Login button */}
+        <button
+          onClick={handleLogin}
+          className="w-full bg-red-500 p-2 rounded hover:bg-red-600"
+        >
+          Login
+        </button>
 
-        <button type="submit">Login</button>
-      </form>
+        {/* Redirect to register */}
+        <p className="mt-4 text-sm text-gray-400 text-center">
+          Don't have an account?{" "}
+          <Link to="/register" className="text-blue-400">
+            Register
+          </Link>
+        </p>
 
-      {/* Show message */}
-      {message && <p>{message}</p>}
+      </div>
     </div>
   );
 };
