@@ -2,33 +2,43 @@ import { useEffect, useState } from "react";
 import axios from "axios";
 import Navbar from "../components/Navbar";
 import Sidebar from "../components/Sidebar";
+import { videos as sampleVideos } from "../data/videos";
 import VideoCard from "../components/VideoCard";
 
 const Home = () => {
   const [videos, setVideos] = useState([]);
   const [search, setSearch] = useState("");
 
-  // Fetch videos
+  // Fetch videos from backend
   useEffect(() => {
     fetchVideos();
   }, []);
 
-  // Fetch all videos from the backend
   const fetchVideos = async () => {
     try {
       const res = await axios.get("http://localhost:9090/api/videos");
-      setVideos(res.data);
+
+      // If backend has data → use it
+      if (res.data.length > 0) {
+        setVideos(res.data);
+      } else {
+        // fallback to sample data
+        setVideos(sampleVideos);
+      }
+
     } catch (error) {
-      console.log(error);
+      console.log("API failed, using sample data");
+
+      // fallback if API fails
+      setVideos(sampleVideos);
     }
   };
 
-  // Filter
+  // Filter videos
   const filtered = videos.filter((v) =>
     v.title.toLowerCase().includes(search.toLowerCase())
   );
 
-  // Render the home page with navbar, sidebar, search bar, and video grid
   return (
     <div className="bg-black min-h-screen text-white">
 
@@ -38,7 +48,7 @@ const Home = () => {
 
         <Sidebar />
 
-        {/* Content */}
+        {/* Main Content */}
         <div className="flex-1 p-5">
 
           {/* Search */}
@@ -49,7 +59,7 @@ const Home = () => {
             onChange={(e) => setSearch(e.target.value)}
           />
 
-          {/* Grid */}
+          {/* Video Grid */}
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5">
             {filtered.map((video) => (
               <VideoCard key={video._id} video={video} />
