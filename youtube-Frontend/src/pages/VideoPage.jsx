@@ -30,9 +30,7 @@ const VideoPage = () => {
   // Get video details
   const fetchVideo = async () => {
     try {
-      const res = await axios.get(
-        `http://localhost:9090/api/videos/${id}`
-      );
+      const res = await axios.get(`http://localhost:9090/api/videos/${id}`);
       setVideo(res.data);
     } catch (error) {
       console.log("Error fetching video:", error);
@@ -42,9 +40,7 @@ const VideoPage = () => {
   // Get comments
   const fetchComments = async () => {
     try {
-      const res = await axios.get(
-        `http://localhost:9090/api/comments/${id}`
-      );
+      const res = await axios.get(`http://localhost:9090/api/comments/${id}`);
       setComments(res.data);
     } catch (error) {
       console.log("Error fetching comments:", error);
@@ -61,7 +57,7 @@ const VideoPage = () => {
           headers: {
             Authorization: `Bearer ${token}`,
           },
-        }
+        },
       );
       fetchVideo(); // refresh UI
     } catch (error) {
@@ -79,7 +75,7 @@ const VideoPage = () => {
           headers: {
             Authorization: `Bearer ${token}`,
           },
-        }
+        },
       );
       fetchVideo();
     } catch (error) {
@@ -99,7 +95,7 @@ const VideoPage = () => {
           headers: {
             Authorization: `Bearer ${token}`,
           },
-        }
+        },
       );
 
       setComment("");
@@ -109,8 +105,9 @@ const VideoPage = () => {
     }
   };
 
-  // ✏ Update comment
+  // Update comment
   const updateComment = async (commentId) => {
+    if (!editText.trim()) return;
     try {
       await axios.put(
         `http://localhost:9090/api/comments/${commentId}`,
@@ -119,7 +116,7 @@ const VideoPage = () => {
           headers: {
             Authorization: `Bearer ${token}`,
           },
-        }
+        },
       );
 
       setEditId(null);
@@ -130,17 +127,14 @@ const VideoPage = () => {
     }
   };
 
-  // ❌ Delete comment
+  // Delete comment
   const deleteComment = async (commentId) => {
     try {
-      await axios.delete(
-        `http://localhost:9090/api/comments/${commentId}`,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
+      await axios.delete(`http://localhost:9090/api/comments/${commentId}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
 
       fetchComments();
     } catch (error) {
@@ -155,23 +149,15 @@ const VideoPage = () => {
 
   return (
     <div className="bg-black text-white min-h-screen p-5">
-
       {/* 🎬 Video Player */}
-      <video
-        src={video.videoUrl}
-        controls
-        className="w-full rounded"
-      />
+      <video src={video.videoUrl} controls className="w-full rounded" />
 
-      {/* 🎯 Title */}
+      {/* Title */}
       <h2 className="text-xl mt-3">{video.title}</h2>
 
-      {/* 👍 👎 Buttons */}
+      {/*  Buttons */}
       <div className="flex gap-3 mt-3">
-        <button
-          onClick={handleLike}
-          className="bg-gray-800 px-3 py-1 rounded"
-        >
+        <button onClick={handleLike} className="bg-gray-800 px-3 py-1 rounded">
           👍 {video.likes}
         </button>
 
@@ -183,7 +169,7 @@ const VideoPage = () => {
         </button>
       </div>
 
-      {/* 💬 Comments Section */}
+      {/* Comments Section */}
       <div className="mt-5">
         <h3 className="text-lg">Comments</h3>
 
@@ -196,23 +182,16 @@ const VideoPage = () => {
             placeholder="Add a comment..."
           />
 
-          <button
-            onClick={addComment}
-            className="bg-blue-500 px-4 rounded"
-          >
+          <button onClick={addComment} className="bg-blue-500 px-4 rounded">
             Post
           </button>
         </div>
 
         {/* Comment List */}
         {comments.map((c) => (
-          <div
-            key={c._id}
-            className="bg-gray-900 p-2 mt-2 rounded"
-          >
-
+          <div key={c._id} className="bg-gray-900 p-2 mt-2 rounded">
             {editId === c._id ? (
-                // ✏ Edit View
+              // ✏ Edit View
               <div className="flex gap-2">
                 <input
                   value={editText}
@@ -222,7 +201,7 @@ const VideoPage = () => {
 
                 <button
                   onClick={() => updateComment(c._id)}
-                  className="text-green-400"
+                  className="bg-blue-500 px-4 rounded"
                 >
                   Save
                 </button>
@@ -252,10 +231,8 @@ const VideoPage = () => {
                 </div>
               </div>
             )}
-
           </div>
         ))}
-
       </div>
     </div>
   );
