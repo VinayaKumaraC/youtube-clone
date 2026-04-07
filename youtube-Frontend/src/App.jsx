@@ -1,9 +1,18 @@
-import React from 'react'
+import { Routes, Route } from "react-router-dom";
+import Home from "./pages/Home";
+import VideoPage from "./pages/VideoPage";
+import Login from "./pages/Login";
+import Register from "./pages/Register";
 
-export default function App() {
+function App() {
   return (
-    <div>
-      
-    </div>
-  )
+    <Routes>
+      <Route path="/" element={<Home />} />
+      <Route path="/video/:id" element={<VideoPage />} />
+      <Route path="/login" element={<Login />} />
+      <Route path="/register" element={<Register />} />
+    </Routes>
+  );
 }
+
+export default App;
