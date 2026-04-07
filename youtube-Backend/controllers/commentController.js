@@ -13,7 +13,7 @@ export const addComment = async (req, res) => {
 
     const comment = await Comment.create({
       text,
-      user: req.user,
+      user: req.user, // user id from token
       video: videoId,
     });
 
@@ -41,21 +41,48 @@ export const getCommentsByVideo = async (req, res) => {
   }
 };
 
-// Delete comment
-export const deleteComment = async (req, res) => {
+// ✏ Update comment (FINAL FIXED VERSION)
+export const updateComment = async (req, res) => {
   try {
-    const comment = await Comment.findById(req.params.id);
+    const { text } = req.body;
 
-    if (!comment) {
+    // Update only if comment belongs to logged-in user
+    const updatedComment = await Comment.findOneAndUpdate(
+      {
+        _id: req.params.id,
+        user: req.user, // ownership check
+      },
+      { text },
+      { new: true }
+    );
+
+    if (!updatedComment) {
       return res.status(404).json({
-        message: "Comment not found",
+        message: "Comment not found or unauthorized",
       });
     }
 
-    // Only login user can delete
-    if (comment.user.toString() !== req.user) {
-      return res.status(401).json({
-        message: "Unauthorized",
+    res.json({
+      message: "Comment updated successfully",
+      updatedComment,
+    });
+
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+// Delete comment
+export const deleteComment = async (req, res) => {
+  try {
+    const comment = await Comment.findOne({
+      _id: req.params.id,
+      user: req.user, // only owner can delete
+    });
+
+    if (!comment) {
+      return res.status(404).json({
+        message: "Comment not found or unauthorized",
       });
     }
 
