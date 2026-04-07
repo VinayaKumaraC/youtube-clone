@@ -6,7 +6,7 @@ const Home = () => {
   const [videos, setVideos] = useState([]);
   const [search, setSearch] = useState("");
 
-  // Fetch videos
+  // Fetch all videos
   useEffect(() => {
     const fetchVideos = async () => {
       try {
@@ -22,13 +22,21 @@ const Home = () => {
     fetchVideos();
   }, []);
 
-  // Search filter
+  // Filter videos based on search
   const filteredVideos = videos.filter((video) =>
     video.title.toLowerCase().includes(search.toLowerCase())
   );
 
   return (
     <div style={{ padding: "20px" }}>
+      
+      {/* Navigation */}
+      <div style={{ marginBottom: "20px" }}>
+        <Link to="/" style={{ marginRight: "15px" }}>Home</Link>
+        <Link to="/login" style={{ marginRight: "15px" }}>Login</Link>
+        <Link to="/register">Register</Link>
+      </div>
+
       <h2>All Videos</h2>
 
       {/* Search Bar */}
@@ -37,35 +45,47 @@ const Home = () => {
         placeholder="Search videos..."
         value={search}
         onChange={(e) => setSearch(e.target.value)}
-        style={{ padding: "10px", width: "300px", marginBottom: "20px" }}
+        style={{
+          padding: "10px",
+          width: "300px",
+          marginBottom: "20px",
+        }}
       />
 
       {/* Video List */}
-      <div>
-        {filteredVideos.length === 0 ? (
-          <p>No videos found</p>
-        ) : (
-          filteredVideos.map((video) => (
-            <div
-              key={video._id}
-              style={{
-                border: "1px solid #ccc",
-                padding: "10px",
-                marginBottom: "10px",
-              }}
-            >
-              <Link to={`/video/${video._id}`}>
-                <h3>{video.title}</h3>
-              </Link>
+      {filteredVideos.length === 0 ? (
+        <p>No videos found</p>
+      ) : (
+        filteredVideos.map((video) => (
+          <div
+            key={video._id}
+            style={{
+              border: "1px solid #ccc",
+              padding: "10px",
+              marginBottom: "10px",
+              borderRadius: "5px",
+            }}
+          >
+            {/* Video Title (Clickable) */}
+            <Link to={`/video/${video._id}`}>
+              <h3>{video.title}</h3>
+            </Link>
 
-              <p>{video.description}</p>
+            <p>{video.description}</p>
 
-              {/* Show uploader name */}
-              <p>By: {video.user?.name || "Unknown"}</p>
-            </div>
-          ))
-        )}
-      </div>
+            {/* Show uploader */}
+            <p>
+              <strong>By:</strong>{" "}
+              {video.user?.name || "Unknown"}
+            </p>
+
+            {/* Show likes */}
+            <p>
+              👍 {video.likes || 0} | 👎 {video.dislikes || 0}
+            </p>
+          </div>
+        ))
+      )}
     </div>
   );
 };
