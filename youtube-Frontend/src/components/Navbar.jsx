@@ -3,24 +3,29 @@ import { useState } from "react";
 
 const Navbar = ({ setSearch, toggleSidebar }) => {
   const [input, setInput] = useState("");
-  const user = JSON.parse(localStorage.getItem("user"));
+
+  let user = null;
+  try {
+    const stored = localStorage.getItem("user");
+    if (stored && stored !== "undefined") {
+      user = JSON.parse(stored);
+    }
+  } catch {}
 
   return (
-    <div className="flex items-center justify-between px-5 py-3 bg-black text-white sticky top-0 z-50 border-b border-gray-800">
+    <div className="flex items-center justify-between px-4 py-2 bg-[#0f0f0f] text-white border-b border-gray-800">
 
-      {/* LEFT */}
       <div className="flex items-center gap-4">
         <button onClick={toggleSidebar}>☰</button>
-        <h1 className="text-red-500 font-bold text-xl">YouTube</h1>
+        <h1 className="text-red-500 font-bold">YouTube</h1>
       </div>
 
-      {/* SEARCH */}
       <div className="flex w-1/2">
         <input
-          placeholder="Search"
           value={input}
           onChange={(e) => setInput(e.target.value)}
-          className="w-full px-4 py-2 bg-gray-900 border border-gray-700 rounded-l-full"
+          className="w-full px-4 py-2 bg-black border border-gray-700 rounded-l-full"
+          placeholder="Search"
         />
         <button
           onClick={() => setSearch(input)}
@@ -30,19 +35,17 @@ const Navbar = ({ setSearch, toggleSidebar }) => {
         </button>
       </div>
 
-      {/* RIGHT */}
       <div>
         {user ? (
-          <span className="bg-gray-800 px-3 py-1 rounded-full">
-            {user.name}
-          </span>
+          <span>{user.name}</span>
         ) : (
-          <div className="flex gap-4">
+          <div className="flex gap-3">
             <Link to="/login">Login</Link>
             <Link to="/register">Register</Link>
           </div>
         )}
       </div>
+
     </div>
   );
 };
