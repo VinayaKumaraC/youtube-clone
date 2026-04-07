@@ -3,89 +3,104 @@ import axios from "axios";
 import { Link } from "react-router-dom";
 
 const Home = () => {
+  //store all videos
   const [videos, setVideos] = useState([]);
+
+  // search input
   const [search, setSearch] = useState("");
 
-  // Fetch all videos
+  // Fetch videos when component loads
   useEffect(() => {
     const fetchVideos = async () => {
       try {
-        const res = await axios.get(
-          "http://localhost:9090/api/videos"
-        );
+        // Call backend API
+        const res = await axios.get("http://localhost:9090/api/videos");
         setVideos(res.data);
       } catch (error) {
-        console.log("Error fetching videos");
+        console.log("Error fetching videos:", error);
       }
     };
 
     fetchVideos();
   }, []);
 
-  // Filter videos based on search
-  const filteredVideos = videos.filter((video) =>
-    video.title.toLowerCase().includes(search.toLowerCase())
+  // Filter videos based on search input
+  const filtered = videos.filter((v) =>
+    v.title.toLowerCase().includes(search.toLowerCase())
   );
 
   return (
-    <div style={{ padding: "20px" }}>
+    <div style={{ display: "flex" }}>
       
-      {/* Navigation */}
-      <div style={{ marginBottom: "20px" }}>
-        <Link to="/" style={{ marginRight: "15px" }}>Home</Link>
-        <Link to="/login" style={{ marginRight: "15px" }}>Login</Link>
-        <Link to="/register">Register</Link>
+      {/* Sidebar section */}
+      <div
+        style={{
+          width: "200px",
+          padding: "10px",
+          borderRight: "1px solid #ddd",
+        }}
+      >
+        <h3>Menu</h3>
+        <p>Home</p>
+        <p>Trending</p>
+        <p>Subscriptions</p>
       </div>
 
-      <h2>All Videos</h2>
+      {/* Main content area */}
+      <div style={{ flex: 1, padding: "20px" }}>
+        
+        {/* Header with title and search */}
+        <div style={{ display: "flex", marginBottom: "20px" }}>
+          <h2 style={{ marginRight: "20px" }}>🎥 YouTube Clone</h2>
 
-      {/* Search Bar */}
-      <input
-        type="text"
-        placeholder="Search videos..."
-        value={search}
-        onChange={(e) => setSearch(e.target.value)}
-        style={{
-          padding: "10px",
-          width: "300px",
-          marginBottom: "20px",
-        }}
-      />
+          {/* Search input */}
+          <input
+            type="text"
+            placeholder="Search..."
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            style={{ flex: 1, padding: "8px" }}
+          />
 
-      {/* Video List */}
-      {filteredVideos.length === 0 ? (
-        <p>No videos found</p>
-      ) : (
-        filteredVideos.map((video) => (
-          <div
-            key={video._id}
-            style={{
-              border: "1px solid #ccc",
-              padding: "10px",
-              marginBottom: "10px",
-              borderRadius: "5px",
-            }}
-          >
-            {/* Video Title (Clickable) */}
-            <Link to={`/video/${video._id}`}>
-              <h3>{video.title}</h3>
+          {/* Navigation links */}
+          <Link to="/login" style={{ marginLeft: "10px" }}>
+            Login
+          </Link>
+          <Link to="/register" style={{ marginLeft: "10px" }}>
+            Register
+          </Link>
+        </div>
+
+        {/* Video grid layout */}
+        <div
+          style={{
+            display: "grid",
+            gridTemplateColumns: "repeat(auto-fill, minmax(250px,1fr))",
+            gap: "20px",
+          }}
+        >
+          {filtered.map((video) => (
+            <Link to={`/video/${video._id}`} key={video._id}>
+              
+              {/* Single video card */}
+              <div
+                style={{
+                  border: "1px solid #ccc",
+                  padding: "10px",
+                  borderRadius: "10px",
+                }}
+              >
+                <h4>{video.title}</h4>
+                <p>{video.description}</p>
+
+                {/* Show uploader name */}
+                <p>👤 {video.user?.name}</p>
+              </div>
+
             </Link>
-
-            <p>{video.description}</p>
-
-            {/* Show uploader */}
-            <p>
-              <strong>By:</strong>{" "}
-              {video.user?.name || "Unknown"}
-            </p>
-
-            {/* Show likes */}
-            <p>
-              👍 {video.likes || 0} | 👎 {video.dislikes || 0}
-            </p>
-          </div>
-        ))
-      )}
+          ))}
+        </div>
+      </div>
     </div>
   );
 };
