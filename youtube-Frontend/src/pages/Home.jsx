@@ -2,65 +2,64 @@ import { useEffect, useState } from "react";
 import axios from "axios";
 import Navbar from "../components/Navbar";
 import Sidebar from "../components/Sidebar";
-import { videos as sampleVideos } from "../data/videos";
 import VideoCard from "../components/VideoCard";
 
 const Home = () => {
   const [videos, setVideos] = useState([]);
   const [search, setSearch] = useState("");
+  const [category, setCategory] = useState("All");
+  const [sidebarOpen, setSidebarOpen] = useState(true);
 
-  // Fetch videos from backend
   useEffect(() => {
     fetchVideos();
   }, []);
 
   const fetchVideos = async () => {
-    try {
-      const res = await axios.get("http://localhost:9090/api/videos");
-
-      // If backend has data → use it
-      if (res.data.length > 0) {
-        setVideos(res.data);
-      } else {
-        // fallback to sample data
-        setVideos(sampleVideos);
-      }
-
-    } catch (error) {
-      console.log("API failed, using sample data");
-
-      // fallback if API fails
-      setVideos(sampleVideos);
-    }
+    const res = await axios.get("http://localhost:9090/api/videos");
+    setVideos(res.data);
   };
 
-  // Filter videos
-  const filtered = videos.filter((v) =>
-    v.title.toLowerCase().includes(search.toLowerCase())
+  const filtered = videos.filter(
+    (v) =>
+      v.title.toLowerCase().includes(search.toLowerCase()) &&
+      (category === "All" || v.category === category)
   );
 
   return (
-    <div className="bg-black min-h-screen text-white">
+    <div className="bg-[#0f0f0f] min-h-screen text-white">
 
-      <Navbar />
+      <Navbar
+        setSearch={setSearch}
+        toggleSidebar={() => setSidebarOpen(!sidebarOpen)}
+      />
 
       <div className="flex">
 
-        <Sidebar />
+        <Sidebar open={sidebarOpen} />
 
-        {/* Main Content */}
-        <div className="flex-1 p-5">
+        <div className="flex-1 p-5 ml-0 md:ml-60">
 
-          {/* Search */}
-          <input
-            placeholder="Search videos..."
-            className="mb-5 p-2 w-full bg-gray-900 border border-gray-700 rounded"
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-          />
+          {/* FILTERS */}
+          <div className="flex gap-3 mb-5 overflow-x-auto">
+            {["All", "React", "Music", "Gaming", "News", "Programming"].map(
+              (cat) => (
+                <button
+                  key={cat}
+                  onClick={() => setCategory(cat)}
+                  className={`px-4 py-1 rounded-full ${
+                    category === cat
+                      ? "bg-white text-black"
+                      : "bg-gray-800"
+                  }`}
+                >
+                  {cat}
+                </button>
+              )
+            )}
+          </div>
 
-          {/* Video Grid */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5">
+          {/* GRID */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
             {filtered.map((video) => (
               <VideoCard key={video._id} video={video} />
             ))}

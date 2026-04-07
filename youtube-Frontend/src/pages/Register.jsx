@@ -8,23 +8,53 @@ const Register = () => {
     password: "",
   });
 
-  const handleRegister = async () => {
-    await axios.post(
-      "http://localhost:9090/api/auth/register",
-      data
-    );
+  const [error, setError] = useState("");
+  const [success, setSuccess] = useState("");
 
-    window.location.href = "/login";
+  const handleRegister = async () => {
+    try {
+      if (!data.name || !data.email || !data.password) {
+        return setError("All fields are required");
+      }
+
+      await axios.post(
+        "http://localhost:9090/api/auth/register",
+        data
+      );
+
+      setSuccess("Registration successful! Redirecting...");
+      setError("");
+
+      setTimeout(() => {
+        window.location.href = "/login";
+      }, 1500);
+
+    } catch (err) {
+      setError(err.response?.data?.message || "Register failed");
+      setSuccess("");
+    }
   };
 
   return (
     <div className="flex justify-center items-center h-screen bg-black text-white">
-      <div className="bg-gray-900 p-5 rounded w-80">
-        <h2 className="mb-4">Register</h2>
+
+      <div className="bg-gray-900 p-6 rounded-lg w-80">
+
+        <h2 className="text-xl mb-4 font-semibold text-center">
+          Create Account
+        </h2>
+
+        {error && (
+          <p className="text-red-400 text-sm mb-2">{error}</p>
+        )}
+
+        {success && (
+          <p className="text-green-400 text-sm mb-2">{success}</p>
+        )}
 
         <input
           placeholder="Name"
-          className="w-full mb-2 p-2 bg-gray-800"
+          className="w-full mb-3 p-2 bg-gray-800 rounded"
           onChange={(e) =>
             setData({ ...data, name: e.target.value })
           }
@@ -32,7 +62,7 @@ const Register = () => {
 
         <input
           placeholder="Email"
-          className="w-full mb-2 p-2 bg-gray-800"
+          className="w-full mb-3 p-2 bg-gray-800 rounded"
           onChange={(e) =>
             setData({ ...data, email: e.target.value })
           }
@@ -41,7 +71,7 @@ const Register = () => {
         <input
           type="password"
           placeholder="Password"
-          className="w-full mb-2 p-2 bg-gray-800"
+          className="w-full mb-4 p-2 bg-gray-800 rounded"
           onChange={(e) =>
             setData({ ...data, password: e.target.value })
           }
@@ -49,10 +79,11 @@ const Register = () => {
 
         <button
           onClick={handleRegister}
-          className="bg-green-500 w-full p-2"
+          className="bg-green-500 w-full p-2 rounded hover:bg-green-600"
         >
-          <h2 className="mb-4 text-lg font-semibold">Create your account</h2>
+          Register
         </button>
+
       </div>
     </div>
   );
