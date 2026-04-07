@@ -4,7 +4,6 @@ import axios from "axios";
 const Login = () => {
   const [data, setData] = useState({ email: "", password: "" });
 
-  // Handle login
   const handleLogin = async () => {
     const res = await axios.post(
       "http://localhost:9090/api/auth/login",
@@ -17,13 +16,11 @@ const Login = () => {
     window.location.href = "/";
   };
 
-  // Render login page
   return (
     <div className="flex justify-center items-center h-screen bg-black text-white">
       <div className="bg-gray-900 p-5 rounded w-80">
         <h2 className="mb-4">Sign in</h2>
 
-        {/* Email and password input fields */}
         <input
           placeholder="Email"
           className="w-full mb-2 p-2 bg-gray-800"
@@ -41,7 +38,6 @@ const Login = () => {
           }
         />
 
-        {/* Login button */}
         <button onClick={handleLogin} className="bg-blue-500 w-full p-2">
           Login
         </button>

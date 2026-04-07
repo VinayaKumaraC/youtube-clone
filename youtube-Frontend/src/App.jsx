@@ -8,13 +8,13 @@ import Channel from "./pages/Channel";
 
 function App() {
   return (
-      <Routes>
-        <Route path="/" element={<Home />} />
-        <Route path="/video/:id" element={<VideoPage />} />
-        <Route path="/login" element={<Login />} />
-        <Route path="/register" element={<Register />} />
-        <Route path="/channel/:channelName" element={<Channel />} />
-      </Routes>
+    <Routes>
+      <Route path="/" element={<Home />} />
+      <Route path="/video/:id" element={<VideoPage />} />
+      <Route path="/login" element={<Login />} />
+      <Route path="/register" element={<Register />} />
+      <Route path="/channel" element={<Channel />} />
+    </Routes>
   );
 }
 
