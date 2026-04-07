@@ -47,7 +47,7 @@ const VideoPage = () => {
     }
   };
 
-  // 👍 Like video
+  // Like video
   const handleLike = async () => {
     try {
       await axios.put(
@@ -65,7 +65,7 @@ const VideoPage = () => {
     }
   };
 
-  // 👎 Dislike video
+  // Dislike video
   const handleDislike = async () => {
     try {
       await axios.put(
@@ -83,7 +83,7 @@ const VideoPage = () => {
     }
   };
 
-  // 💬 Add comment
+  // Add comment
   const addComment = async () => {
     if (!comment.trim()) return;
 
@@ -109,8 +109,7 @@ const VideoPage = () => {
   const updateComment = async (commentId) => {
     if (!editText.trim()) return;
     try {
-      await axios.put(
-        `http://localhost:9090/api/comments/${commentId}`,
+      await axios.put(`http://localhost:9090/api/comments/${commentId}`,
         { text: editText },
         {
           headers: {
