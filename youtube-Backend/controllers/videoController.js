@@ -1,156 +1,92 @@
 import Video from "../models/Video.js";
+import Channel from "../models/Channel.js";
 
-// Create video
 export const createVideo = async (req, res) => {
   try {
-    const { title, description, url } = req.body;
-
-    if (!title || !url) {
-      return res.status(400).json({
-        message: "Title and URL are required",
-      });
-    }
+    const { title, description, videoUrl, category, channelId } = req.body;
 
     const video = await Video.create({
       title,
       description,
-      url,
-      user: req.user, // from middleware
+      videoUrl,
+      category,
+      channel: channelId,
+      user: req.user,
     });
 
-    res.status(201).json({
-      message: "Video created successfully",
-      video,
-    });
-
-  } catch (error) {
-    res.status(500).json({ message: error.message });
-  }
-};
-
-// Get all videos
-export const getAllVideos = async (req, res) => {
-  try {
-    const videos = await Video.find().populate("user", "name");
-
-    res.json(videos);
-  } catch (error) {
-    res.status(500).json({ message: error.message });
-  }
-};
-
-// Get video by ID
-export const getVideoById = async (req, res) => {
-  try {
-    const video = await Video.findById(req.params.id).populate("user", "name");
-
-    if (!video) {
-      return res.status(404).json({
-        message: "Video not found",
+    if (channelId) {
+      await Channel.findByIdAndUpdate(channelId, {
+        $push: { videos: video._id },
       });
     }
 
-    res.json(video);
-
+    res.status(201).json(video);
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
 };
 
-// Update video
+export const getAllVideos = async (req, res) => {
+  const { search, category } = req.query;
+
+  let query = {};
+
+  if (search) {
+    query.title = { $regex: search, $options: "i" };
+  }
+
+  if (category && category !== "All") {
+    query.category = category;
+  }
+
+  const videos = await Video.find(query)
+    .populate("user", "name")
+    .populate("channel", "channelName");
+
+  res.json(videos);
+};
+
+export const getVideoById = async (req, res) => {
+  const video = await Video.findById(req.params.id)
+    .populate("user", "name");
+
+  res.json(video);
+};
+
 export const updateVideo = async (req, res) => {
-  try {
-    const video = await Video.findById(req.params.id);
+  const video = await Video.findById(req.params.id);
 
-    if (!video) {
-      return res.status(404).json({ message: "Video not found" });
-    }
-
-    // Check owner
-    if (video.user.toString() !== req.user) {
-      return res.status(401).json({ message: "Unauthorized" });
-    }
-
-    video.title = req.body.title || video.title;
-    video.description = req.body.description || video.description;
-    video.url = req.body.url || video.url;
-
-    const updatedVideo = await video.save();
-
-    res.json({
-      message: "Video updated successfully",
-      updatedVideo,
-    });
-
-  } catch (error) {
-    res.status(500).json({ message: error.message });
+  if (video.user.toString() !== req.user) {
+    return res.status(401).json({ message: "Unauthorized" });
   }
+
+  Object.assign(video, req.body);
+  await video.save();
+
+  res.json(video);
 };
 
-// Delete video
 export const deleteVideo = async (req, res) => {
-  try {
-    const video = await Video.findById(req.params.id);
+  const video = await Video.findById(req.params.id);
 
-    if (!video) {
-      return res.status(404).json({ message: "Video not found" });
-    }
-
-    if (video.user.toString() !== req.user) {
-      return res.status(401).json({ message: "Unauthorized" });
-    }
-
-    await video.deleteOne();
-
-    res.json({
-      message: "Video deleted successfully",
-    });
-
-  } catch (error) {
-    res.status(500).json({ message: error.message });
+  if (video.user.toString() !== req.user) {
+    return res.status(401).json({ message: "Unauthorized" });
   }
+
+  await video.deleteOne();
+  res.json({ message: "Deleted" });
 };
 
-// Like for  video 
 export const likeVideo = async (req, res) => {
-  try {
-    const video = await Video.findById(req.params.id);
-
-    if (!video) {
-      return res.status(404).json({ message: "Video not found" });
-    }
-
-    video.likes += 1;
-    await video.save();
-
-    res.json({
-      message: "Video liked",
-      likes: video.likes,
-    });
-
-  } catch (error) {
-    res.status(500).json({ message: error.message });
-  }
+  const video = await Video.findById(req.params.id);
+  video.likes++;
+  await video.save();
+  res.json(video);
 };
 
-// Dislike for video
 export const dislikeVideo = async (req, res) => {
-  try {
-    const video = await Video.findById(req.params.id);
-
-    if (!video) {
-      return res.status(404).json({ message: "Video not found" });
-    }
-
-    video.dislikes += 1;
-    await video.save();
-
-    res.json({
-      message: "Video disliked",
-      dislikes: video.dislikes,
-    });
-
-  } catch (error) {
-    res.status(500).json({ message: error.message });
-  }
+  const video = await Video.findById(req.params.id);
+  video.dislikes++;
+  await video.save();
+  res.json(video);
 };

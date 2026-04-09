@@ -1,13 +1,14 @@
 import express from "express";
+import authMiddleware from "../middleware/authMiddleware.js";
 import {
   createVideo,
   getAllVideos,
   getVideoById,
   updateVideo,
   deleteVideo,
+  likeVideo,
+  dislikeVideo,
 } from "../controllers/videoController.js";
-import authMiddleware from "../middleware/authMiddleware.js";
-import { likeVideo, dislikeVideo } from "../controllers/videoController.js";
 
 const router = express.Router();
 
