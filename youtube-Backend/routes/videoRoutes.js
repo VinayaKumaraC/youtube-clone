@@ -10,8 +10,10 @@ import {
   dislikeVideo,
 } from "../controllers/videoController.js";
 
+// Routes for video management
 const router = express.Router();
 
+// Create a new video
 router.post("/", authMiddleware, createVideo);
 router.get("/", getAllVideos);
 router.get("/:id", getVideoById);

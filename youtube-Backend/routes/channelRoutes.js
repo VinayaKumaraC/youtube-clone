@@ -6,6 +6,7 @@ import {
   getChannelVideos,
 } from "../controllers/channelController.js";
 
+// Routes for channel management
 const router = express.Router();
 
 router.post("/", authMiddleware, createChannel);

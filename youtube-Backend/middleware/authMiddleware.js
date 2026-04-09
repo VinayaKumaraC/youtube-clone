@@ -1,5 +1,6 @@
 import jwt from "jsonwebtoken";
 
+// Middleware to protect routes and verify JWT token
 const authMiddleware = (req, res, next) => {
   try {
     let token = req.headers.authorization;
@@ -12,6 +13,7 @@ const authMiddleware = (req, res, next) => {
       token = token.replace("Bearer ", "");
     }
 
+    // Verify token and extract user ID
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
     req.user = decoded.id;
 

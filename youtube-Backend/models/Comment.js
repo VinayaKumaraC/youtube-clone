@@ -1,5 +1,6 @@
 import mongoose from "mongoose";
 
+// Comment schema
 const commentSchema = new mongoose.Schema(
   {
     text: { type: String, required: true },

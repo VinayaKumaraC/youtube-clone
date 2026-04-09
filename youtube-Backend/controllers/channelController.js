@@ -1,6 +1,7 @@
 import Channel from "../models/Channel.js";
 import Video from "../models/Video.js";
 
+// Create a new channel
 export const createChannel = async (req, res) => {
   try {
     const { channelName, description } = req.body;
@@ -17,6 +18,7 @@ export const createChannel = async (req, res) => {
   }
 };
 
+// Get channel details by ID
 export const getChannel = async (req, res) => {
   const channel = await Channel.findById(req.params.id)
     .populate("owner", "name")
@@ -25,6 +27,7 @@ export const getChannel = async (req, res) => {
   res.json(channel);
 };
 
+// Update channel details
 export const getChannelVideos = async (req, res) => {
   const videos = await Video.find({ channel: req.params.id });
   res.json(videos);
