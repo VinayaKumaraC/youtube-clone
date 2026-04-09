@@ -11,8 +11,10 @@ import channelRoutes from "./routes/channelRoutes.js";
 dotenv.config();
 connectDB();
 
+// Initialize Express app
 const app = express();
 
+// Middleware
 app.use(cors());
 app.use(express.json());
 
