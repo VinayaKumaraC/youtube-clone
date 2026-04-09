@@ -29,5 +29,5 @@ app.get("/", (req, res) => {
 
 // Start the server
 app.listen(process.env.PORT || 9090, () => {
-  console.log(`Server running on port ${PORT}`);
+  console.log(`Server running on port ${process.env.PORT} || 9090`);
 });
