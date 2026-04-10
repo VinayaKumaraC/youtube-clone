@@ -24,25 +24,53 @@ export const getCommentsByVideo = async (req, res) => {
 
 // Update a comment (only by the comment owner)
 export const updateComment = async (req, res) => {
-  const comment = await Comment.findOne({
-    _id: req.params.id,
-    user: req.user,
-  });
+  try {
+    const comment = await Comment.findById(req.params.id);
 
-  comment.text = req.body.text;
-  await comment.save();
+    if (!comment) {
+      return res.status(404).json({ message: "Comment not found" });
+    }
 
-  res.json(comment);
+    // Not owner → 403
+    if (comment.user.toString() !== req.user) {
+      return res.status(403).json({
+        message: "Forbidden",
+      });
+    }
+
+    comment.text = req.body.text;
+    await comment.save();
+
+    res.json(comment);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
 };
 
 // Delete a comment (only by the comment owner)
 export const deleteComment = async (req, res) => {
-  const comment = await Comment.findOne({
-    _id: req.params.id,
-    user: req.user,
-  });
+  try {
+    const comment = await Comment.findById(req.params.id);
 
-  // If comment not found or user is not the owner
-  await comment.deleteOne();
-  res.json({ message: "Deleted" });
+    if (!comment) {
+      return res.status(404).json({
+        message: "Comment not found",
+      });
+    }
+
+    // Not owner → 403
+    if (comment.user.toString() !== req.user) {
+      return res.status(403).json({
+        message: "Forbidden",
+      });
+    }
+
+    await comment.deleteOne();
+
+    res.json({
+      message: "Comment deleted successfully",
+    });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
 };

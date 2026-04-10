@@ -61,28 +61,47 @@ export const getVideoById = async (req, res) => {
 
 // Get videos by channel ID
 export const updateVideo = async (req, res) => {
-  const video = await Video.findById(req.params.id);
+  try {
+    const video = await Video.findById(req.params.id);
 
-  if (video.user.toString() !== req.user) {
-    return res.status(401).json({ message: "Unauthorized" });
+    if (!video) {
+      return res.status(404).json({ message: "Video not found" });
+    }
+
+    // Not owner → 403
+    if (video.user.toString() !== req.user) {
+      return res.status(403).json({ message: "Forbidden" });
+    }
+
+    Object.assign(video, req.body);
+    await video.save();
+
+    res.json(video);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
   }
-
-  Object.assign(video, req.body);
-  await video.save();
-
-  res.json(video);
 };
 
 // Delete a video (only by the video owner)
 export const deleteVideo = async (req, res) => {
-  const video = await Video.findById(req.params.id);
+  try {
+    const video = await Video.findById(req.params.id);
 
-  if (video.user.toString() !== req.user) {
-    return res.status(401).json({ message: "Unauthorized" });
+    if (!video) {
+      return res.status(404).json({ message: "Video not found" });
+    }
+
+    // Not owner → 403
+    if (video.user.toString() !== req.user) {
+      return res.status(403).json({ message: "Forbidden" });
+    }
+
+    await video.deleteOne();
+
+    res.json({ message: "Video deleted successfully" });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
   }
-
-  await video.deleteOne();
-  res.json({ message: "Deleted" });
 };
 
 // Like a video
