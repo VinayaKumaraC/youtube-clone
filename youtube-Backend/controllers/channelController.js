@@ -1,7 +1,7 @@
 import Channel from "../models/Channel.js";
 import Video from "../models/Video.js";
 
-// Create a new channel
+// ✅ Create Channel
 export const createChannel = async (req, res) => {
   try {
     const { channelName, description } = req.body;
@@ -18,17 +18,30 @@ export const createChannel = async (req, res) => {
   }
 };
 
-// Get channel details by ID
+// Get Channel
 export const getChannel = async (req, res) => {
-  const channel = await Channel.findById(req.params.id)
-    .populate("owner", "name")
-    .populate("videos");
+  try {
+    const channel = await Channel.findById(req.params.id)
+      .populate("owner", "name");
 
-  res.json(channel);
+    if (!channel) {
+      return res.status(404).json({ message: "Channel not found" });
+    }
+
+    res.status(200).json(channel);
+  } catch (error) {
+    console.log("Channel Error:", error);
+    res.status(500).json({ message: error.message });
+  }
 };
 
-// Update channel details
+//Get Channel Videos)
 export const getChannelVideos = async (req, res) => {
-  const videos = await Video.find({ channel: req.params.id });
-  res.json(videos);
+  try {
+    const videos = await Video.find({ channel: req.params.id });
+
+    res.status(200).json(videos);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
 };
