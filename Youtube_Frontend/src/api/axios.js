@@ -1,19 +1,17 @@
-import axios from 'axios';
-
-const api = axios.create({
-  baseURL: 'http://localhost:9090/api',
+import axios from "axios";
+//base URL
+const API = axios.create({
+  baseURL: "http://localhost:9090/api",
 });
 
-// Add a request interceptor to include the JWT token
-api.interceptors.request.use(
-  (config) => {
-    const token = localStorage.getItem('token');
-    if (token) {
-      config.headers.Authorization = `Bearer ${token}`;
-    }
-    return config;
-  },
-  (error) => Promise.reject(error)
-);
+API.interceptors.request.use((req) => {
+  const token = localStorage.getItem("token");
 
-export default api;
+  if (token) {
+    req.headers.Authorization = `Bearer ${token}`;
+  }
+
+  return req;
+});
+
+export default API;

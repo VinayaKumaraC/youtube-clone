@@ -1,55 +1,73 @@
-import { useState } from 'react';
-import { BrowserRouter as Router, Routes, Route, Link, Navigate } from 'react-router-dom';
-import Auth from './components/Auth';
-import VideoList from './components/VideoList';
-import VideoDetail from './components/VideoDetail';
-import VideoUpload from './components/VideoUpload'; // 1. Import the new component
+import React, { useState, useEffect } from 'react';
+import Header from './components/Header.jsx'; // import header component
+import SideBar from './components/SideBar.jsx'; // import sidebar component
+import { Outlet } from 'react-router-dom'; // import outlet
+import './App.css'; // import css for styling
 
+// Main App layout: handles sidebar, header, and main content routing
 function App() {
-  const [token, setToken] = useState(localStorage.getItem('token'));
+    const [sidebarOpen, setSidebarOpen] = useState(false);
+    const [searchedVal, setSearchedVal] = useState("");
+    const [searchActive, setSearchActive] = useState(false);
+    // State to keep track of the window width
+    const [windowWidth, setWindowWidth] = useState(window.innerWidth);
 
-  const handleLogout = () => {
-    localStorage.removeItem('token');
-    setToken(null);
-  };
+    // Effect to handle window resize and update windowWidth state
+    useEffect(() => {
+        const handleResize = () => {
+            setWindowWidth(window.innerWidth);
+        };
 
-  return (
-    <Router>
-      <nav style={{ padding: '10px 20px', background: '#f8f8f8', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <Link to="/" style={{ textDecoration: 'none', color: 'black' }}>
-          <h1>▶️ YouTube Clone</h1>
-        </Link>
-        
-        <div style={{ display: 'flex', gap: '15px', alignItems: 'center' }}>
-          <Link to="/">Home</Link>
-          
-          {/* 2. Show Upload and Logout only if the user has a token */}
-          {token ? (
-            <>
-              <Link to="/upload" style={{ fontWeight: 'bold', color: '#cc0000' }}>+ Upload</Link>
-              <button onClick={handleLogout}>Logout</button>
-            </>
-          ) : (
-            <Link to="/auth">Login</Link>
-          )}
-        </div>
-      </nav>
+        window.addEventListener('resize', handleResize);
 
-      <div style={{ padding: '20px' }}>
-        <Routes>
-          <Route path="/" element={<VideoList />} />
-          <Route path="/auth" element={<Auth setToken={setToken} />} />
-          <Route path="/video/:id" element={<VideoDetail />} />
-          
-          {/* 3. Add the Upload Route (Protected) */}
-          <Route 
-            path="/upload" 
-            element={token ? <VideoUpload /> : <Navigate to="/auth" />} 
-          />
-        </Routes>
-      </div>
-    </Router>
-  );
+        // Cleanup the event listener when the component unmounts
+        return () => {
+            window.removeEventListener('resize', handleResize);
+        };
+    }, []); // Empty dependency array ensures this effect runs once on mount and cleans up on unmount
+
+    // Determine if the screen width is less than or equal to 792px
+    const isMobile = windowWidth <= 792;
+
+    // Calculate left margin based on sidebar state and screen width
+    const mainContentStyle = {
+        // If it's mobile, set marginLeft to 0, otherwise use sidebarOpen logic
+        marginLeft: isMobile ? 0 : (sidebarOpen ? 220 : 72),
+        // If it's mobile, set transition to 'none', otherwise use original transition
+        transition: isMobile ? 'none' : 'margin-left 0.2s cubic-bezier(.4,0,.2,1)'
+    };
+
+    // Called when search button is clicked
+    const handleSearch = () => {
+        setSearchActive(true);
+    };
+
+    return (
+        <>
+            {/* Header and sidebar */}
+            <Header
+                sidebarOpen={sidebarOpen}
+                setSidebarOpen={setSidebarOpen}
+                searchedVal={searchedVal}
+                setSearchedVal={setSearchedVal}
+                onSearch={handleSearch}
+            />
+            <div className="app-layout">
+                {/* Sidebar and main content */}
+                <SideBar sidebarOpen={sidebarOpen} isMobile={isMobile} />
+                <div className="main-content" style={mainContentStyle}>
+                    {/* Outlet for nested routes */}
+                    <Outlet context={{
+                        sidebarOpen,
+                        searchedVal,
+                        setSearchedVal,
+                        searchActive,
+                        setSearchActive
+                    }} />
+                </div>
+            </div>
+        </>
+    );
 }
 
-export default App;
+export default App; // export app

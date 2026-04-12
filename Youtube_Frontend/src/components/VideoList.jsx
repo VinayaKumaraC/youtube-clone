@@ -1,60 +1,93 @@
-import { useEffect, useState } from 'react';
-import { Link } from 'react-router-dom'; // 1. Don't forget this import!
-import api from '../api/axios';
+import React, { useState, useEffect } from 'react'
+import Video from './Video.jsx'
+import '../css/homePage.css'
+import { useOutletContext } from 'react-router-dom'
 
-export default function VideoList() {
-  const [videos, setVideos] = useState([]);
+import API from '../api/axios.js'
 
-  useEffect(() => {
-    const fetchVideos = async () => {
-      try {
-        const response = await api.get('/videos');
-        setVideos(response.data.data); 
-      } catch (error) {
-        console.error("Failed to fetch videos", error);
-      }
-    };
-    fetchVideos();
-  }, []);
+function VideoList({ sidebarOpen }) {
 
-  return (
-    <div className="video-grid" style={{ padding: '20px' }}>
-      <h2 style={{ marginBottom: '20px' }}>Recommended Videos</h2>
-      <div style={{ display: 'flex', flexWrap: 'wrap', gap: '20px' }}>
-        {videos?.map?.((video) => (
-          /* 2. Wrap the card in a Link to enable navigation */
-          <Link 
-            to={`/video/${video._id || video.id}`} 
-            key={video._id || video.id} 
-            style={{ textDecoration: 'none', color: 'inherit' }}
-          >
-            <div style={{ 
-              width: '300px', 
-              cursor: 'pointer',
-              transition: 'transform 0.2s' 
-            }}
-            onMouseOver={(e) => e.currentTarget.style.transform = 'scale(1.02)'}
-            onMouseOut={(e) => e.currentTarget.style.transform = 'scale(1)'}
-            >
-              {/* 3. Add the Thumbnail Image */}
-              <img 
-                src={video.thumbnailUrl || 'https://miro.medium.com/v2/resize:fit:1400/0*hZK1xVsaAFVjlEyB.jpeg'} 
-                alt={video.title} 
-                style={{ width: '100%', borderRadius: '12px', aspectRatio: '16/9', objectFit: 'cover' }} 
-              />
-              
-              <div style={{ padding: '10px 0' }}>
-                <h3 style={{ margin: '0 0 5px 0', fontSize: '16px', lineHeight: '1.4' }}>
-                  {video.title}
-                </h3>
-                <p style={{ margin: '0', fontSize: '14px', color: '#606060' }}>
-                  {video.views || 0} views
-                </p>
-              </div>
+    const categories = ["All", "Programming", "Tech", "Design", "AI", "Gaming", "Vlogs", "Music", "Education"]
+
+    const [videos, setVideos] = useState([])
+    const [selectedCategory, setSelectedCategory] = useState("All")
+
+    const {
+        searchedVal,
+        setSearchedVal,
+        searchActive,
+        setSearchActive
+    } = useOutletContext()
+
+    useEffect(() => {
+
+        const fetchVideos = async () => {
+            try {
+                let query = ""
+
+                if (searchActive && searchedVal.trim()) {
+                    query = `?search=${searchedVal}`
+                } 
+                else if (selectedCategory !== "All") {
+                    query = `?category=${selectedCategory}`
+                }
+
+                const { data } = await API.get(`/videos${query}`)
+
+                console.log("API response:", data)
+
+                // ✅ FINAL FIX
+                setVideos(data.videos || [])
+
+            } catch (err) {
+                console.error("❌ Failed to load videos:", err.message)
+                setVideos([])
+            }
+        }
+
+        fetchVideos()
+
+    }, [selectedCategory, searchedVal, searchActive])
+
+
+    const handleCategoryClick = (cat) => {
+        setSelectedCategory(cat)
+        setSearchedVal("")
+        setSearchActive(false)
+    }
+
+    const effectiveCategory = searchActive ? "All" : selectedCategory
+
+
+    return (
+        <div className='home-page'>
+
+            <div className='filter-options'>
+                {categories.map(cat => (
+                    <button
+                        key={cat}
+                        className={`filter-btn ${effectiveCategory === cat ? 'active' : ''}`}
+                        onClick={() => handleCategoryClick(cat)}
+                    >
+                        {cat}
+                    </button>
+                ))}
             </div>
-          </Link>
-        )) || <p>No videos found.</p>}
-      </div>
-    </div>
-  );
+
+            <div className='videoList'>
+
+                {videos.length === 0 ? (
+                    <p style={{ textAlign: "center" }}>No videos found</p>
+                ) : (
+                    videos.map(video => (
+                        <Video key={video._id} video={video} />
+                    ))
+                )}
+
+            </div>
+
+        </div>
+    )
 }
+
+export default VideoList
