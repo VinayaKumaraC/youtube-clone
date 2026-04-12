@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import API from "../api/axios";
+import CommentBox from "../components/CommentBox";
 
 function VideoPlayer() {
   const { id } = useParams();
@@ -20,6 +21,11 @@ function VideoPlayer() {
       <h2>{video.title}</h2>
       <p>{video.description}</p>
       <p>{video.views} views</p>
+
+      <button onClick={() => API.put(`/videos/${id}/like`)}>Like</button>
+      <button onClick={() => API.put(`/videos/${id}/dislike`)}>Dislike</button>
+
+      <CommentBox videoId={id} />
     </div>
   );
 }
