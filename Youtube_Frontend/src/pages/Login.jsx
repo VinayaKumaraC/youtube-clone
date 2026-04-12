@@ -9,9 +9,18 @@ function Login() {
   const { login } = useContext(AuthContext);
 
   const handleSubmit = async () => {
+  if (!form.email || !form.password) {
+    alert("Please enter email and password");
+    return;
+  }
+
+  try {
     const res = await API.post("/auth/login", form);
     login(res.data);
-  };
+  } catch (err) {
+    alert(err.response?.data?.message || "Login failed");
+  }
+};
 
   return (
     <div>
