@@ -80,10 +80,7 @@ const videoSchema = new mongoose.Schema(
 // text index for fast search
 videoSchema.index({ title: "text", description: "text" });
 
-
-// ==============================
-// VIRTUAL FIELD (OPTIONAL BONUS)
-// ==============================
+// compound index for category + uploadDate sorting
 
 // total reactions (likes - dislikes)
 videoSchema.virtual("score").get(function () {
@@ -91,7 +88,4 @@ videoSchema.virtual("score").get(function () {
 });
 
 
-// ==============================
-// EXPORT MODEL
-// ==============================
 export default mongoose.model("Video", videoSchema);
