@@ -1,0 +1,25 @@
+# node modules (VERY IMPORTANT)
+node_modules/
+
+# environment variables
+.env
+
+# logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# build files
+dist/
+build/
+
+# frontend specific
+Youtube_Frontend/node_modules/
+Youtube_Frontend/dist/
+
+# backend specific
+Youtube_Backend/node_modules/
