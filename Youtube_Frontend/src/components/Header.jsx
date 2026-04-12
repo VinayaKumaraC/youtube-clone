@@ -13,7 +13,7 @@ function Header({ setSearch }) {
   };
 
   return (
-    <div style={{ display: "flex", justifyContent: "space-between", padding: "10px", background: "#eee" }}>
+    <div style={{ display: "flex", justifyContent: "space-between", padding: "10px 20px", background: "#202020", color: "white" }}>
       <h2>YouTube Clone</h2>
 
       {/* search bar */}
