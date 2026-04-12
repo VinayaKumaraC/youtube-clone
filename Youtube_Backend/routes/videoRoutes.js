@@ -1,7 +1,6 @@
-// routes for video operations
+// routes for video-related APIs
 
 import express from "express";
-import authMiddleware from "../middleware/authMiddleware.js";
 import {
   createVideo,
   getAllVideos,
@@ -12,12 +11,44 @@ import {
   dislikeVideo,
 } from "../controllers/videoController.js";
 
+import authMiddleware from "../middleware/authMiddleware.js";
+import { videoValidator } from "../validators/videoValidator.js";
+import { validationResult } from "express-validator";
+
 const router = express.Router();
 
-// create video
-router.post("/", authMiddleware, createVideo);
 
-// fetch videos (search + filter + pagination)
+// ==============================
+// VALIDATION HANDLER (IMPORTANT)
+// ==============================
+const handleValidation = (req, res, next) => {
+  const errors = validationResult(req);
+
+  if (!errors.isEmpty()) {
+    return res.status(400).json({
+      success: false,
+      errors: errors.array(),
+    });
+  }
+
+  next();
+};
+
+
+// ==============================
+// ROUTES
+// ==============================
+
+// create video (with validation)
+router.post(
+  "/",
+  authMiddleware,
+  videoValidator,
+  handleValidation,
+  createVideo
+);
+
+// get all videos
 router.get("/", getAllVideos);
 
 // get single video
