@@ -4,7 +4,7 @@ function Sidebar({ setCategory }) {
   const categories = ["All", "Tech", "Music", "Gaming", "News", "Sports"];
 
   return (
-    <div style={{ width: "200px", background: "#ddd", padding: "10px" }}>
+    <div style={{ width: "200px", background: "#f1f1f1",height:"100vh" ,padding: "10px" }}>
       <h3>Filters</h3>
 
       {categories.map((cat) => (
