@@ -1,34 +1,24 @@
-// handles login
-
-import { useState, useContext } from "react";
+import { useState } from "react";
 import API from "../api/axios";
-import { AuthContext } from "../context/AuthContext";
+import { useNavigate } from "react-router-dom";
 
-function Login() {
-  const [form, setForm] = useState({});
-  const { login } = useContext(AuthContext);
+export default function Login() {
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const navigate = useNavigate();
 
-  const handleSubmit = async () => {
-  if (!form.email || !form.password) {
-    alert("Please enter email and password");
-    return;
-  }
-
-  try {
-    const res = await API.post("/auth/login", form);
-    login(res.data);
-  } catch (err) {
-    alert(err.response?.data?.message || "Login failed");
-  }
-};
+  const handleLogin = async () => {
+    const res = await API.post("/auth/login", { email, password });
+    localStorage.setItem("user", JSON.stringify(res.data));
+    navigate("/");
+  };
 
   return (
     <div>
-      <input placeholder="Email" onChange={(e) => setForm({ ...form, email: e.target.value })} />
-      <input placeholder="Password" type="password" onChange={(e) => setForm({ ...form, password: e.target.value })} />
-      <button onClick={handleSubmit}>Login</button>
+      <h2>Login</h2>
+      <input placeholder="email" onChange={(e) => setEmail(e.target.value)} />
+      <input type="password" placeholder="password" onChange={(e) => setPassword(e.target.value)} />
+      <button onClick={handleLogin}>Login</button>
     </div>
   );
 }
-
-export default Login;

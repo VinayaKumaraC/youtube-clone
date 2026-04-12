@@ -1,46 +1,25 @@
 import { useEffect, useState } from "react";
 import API from "../api/axios";
 import VideoCard from "../components/VideoCard";
-import Header from "../components/Header";
-import Sidebar from "../components/Sidebar";
 
-function Home() {
+export default function Home() {
   const [videos, setVideos] = useState([]);
-  const [search, setSearch] = useState("");
-  const [category, setCategory] = useState("All");
-
-  const fetchVideos = async () => {
-    const res = await API.get(`/videos?search=${search}&category=${category}`);
-    setVideos(res.data);
-  };
 
   useEffect(() => {
-    fetchVideos();
-  }, [search, category]);
+    API.get("/videos").then((res) => {
+      const data = res.data;
+      setVideos(Array.isArray(data) ? data : [data]);
+    });
+  }, []);
 
   return (
     <div>
-      <Header setSearch={setSearch} />
-
-      <div style={{ display: "flex" }}>
-        <Sidebar setCategory={setCategory} />
-
-        <div
-          style={{
-            display: "grid",
-            gridTemplateColumns: "repeat(4, 1fr)",
-            gap: "20px",
-            padding: "20px",
-            flex: 1,
-          }}
-        >
-          {videos.map((v) => (
-            <VideoCard key={v._id} video={v} />
-          ))}
-        </div>
+      <h2>Home</h2>
+      <div style={{ display: "flex", flexWrap: "wrap", gap: "20px" }}>
+        {videos.map((v) => (
+          <VideoCard key={v._id?.$oid || v._id} video={v} />
+        ))}
       </div>
     </div>
   );
 }
-
-export default Home;

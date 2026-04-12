@@ -1,39 +1,21 @@
-// user registration page
-
 import { useState } from "react";
 import API from "../api/axios";
 
-function Register() {
-  const [form, setForm] = useState({});
+export default function Register() {
+  const [data, setData] = useState({});
 
-  const handleSubmit = async () => {
-    await API.post("/auth/register", form);
-    alert("Registered successfully, now login");
+  const handleRegister = async () => {
+    await API.post("/auth/register", data);
+    alert("Registered!");
   };
 
   return (
     <div>
       <h2>Register</h2>
-
-      <input
-        placeholder="Username"
-        onChange={(e) => setForm({ ...form, username: e.target.value })}
-      />
-
-      <input
-        placeholder="Email"
-        onChange={(e) => setForm({ ...form, email: e.target.value })}
-      />
-
-      <input
-        type="password"
-        placeholder="Password"
-        onChange={(e) => setForm({ ...form, password: e.target.value })}
-      />
-
-      <button onClick={handleSubmit}>Register</button>
+      <input placeholder="username" onChange={(e) => setData({...data, username: e.target.value})} />
+      <input placeholder="email" onChange={(e) => setData({...data, email: e.target.value})} />
+      <input type="password" placeholder="password" onChange={(e) => setData({...data, password: e.target.value})} />
+      <button onClick={handleRegister}>Register</button>
     </div>
   );
 }
-
-export default Register;
