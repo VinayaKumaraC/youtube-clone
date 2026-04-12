@@ -4,6 +4,7 @@ import express from "express";
 import dotenv from "dotenv";
 import cors from "cors";
 import connectDB from "./config/db.js";
+import errorHandler from "./utils/errorHandler.js";
 
 import authRoutes from "./routes/authRoutes.js";
 import videoRoutes from "./routes/videoRoutes.js";
@@ -23,6 +24,8 @@ app.use("/api/auth", authRoutes);
 app.use("/api/videos", videoRoutes);
 app.use("/api/comments", commentRoutes);
 app.use("/api/channels", channelRoutes);
+
+app.use(errorHandler);
 
 app.get("/", (req, res) => {
   res.send("API running");
