@@ -16,16 +16,26 @@ function VideoPlayer() {
   if (!video) return <p>Loading...</p>;
 
   return (
-    <div>
-      <video src={video.videoUrl} controls width="600" />
-      <h2>{video.title}</h2>
-      <p>{video.description}</p>
-      <p>{video.views} views</p>
+    <div style={{ display: "flex", padding: "20px" }}>
+      <div style={{ flex: 3 }}>
+        <video src={video.videoUrl} controls width="100%" />
 
-      <button onClick={() => API.put(`/videos/${id}/like`)}>Like</button>
-      <button onClick={() => API.put(`/videos/${id}/dislike`)}>Dislike</button>
+        <h2>{video.title}</h2>
+        <p>{video.description}</p>
+        <p>{video.views} views</p>
 
-      <CommentBox videoId={id} />
+        <button onClick={() => API.put(`/videos/${id}/like`)}>👍 Like</button>
+        <button onClick={() => API.put(`/videos/${id}/dislike`)}>
+          👎 Dislike
+        </button>
+
+        <CommentBox videoId={id} />
+      </div>
+
+      <div style={{ flex: 1 }}>
+        <h3>Suggested</h3>
+        {/* optional */}
+      </div>
     </div>
   );
 }
