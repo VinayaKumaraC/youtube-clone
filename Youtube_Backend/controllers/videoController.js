@@ -1,5 +1,6 @@
 // controller responsible for handling all video related operations
 // includes CRUD + search + filter + likes + views
+// upgraded to production-level standards (clean, consistent, secure)
 
 import Video from "../models/Video.js";
 import Channel from "../models/Channel.js";
@@ -13,28 +14,36 @@ import asyncHandler from "../utils/asyncHandler.js";
 export const createVideo = asyncHandler(async (req, res) => {
   const { title, description, videoUrl, category, channelId } = req.body;
 
-  // basic validation (kept simple and readable)
-  if (!title || !videoUrl) {
-    return res.status(400).json({ message: "Title and video URL required" });
+  // strong validation
+  if (!title || title.trim().length < 3) {
+    return res.status(400).json({ success: false, message: "Title must be at least 3 characters" });
+  }
+
+  if (!videoUrl) {
+    return res.status(400).json({ success: false, message: "Video URL is required" });
   }
 
   const video = await Video.create({
-    title,
+    title: title.trim(),
     description,
     videoUrl,
     category,
-    channel: channelId,
+    channel: channelId || null,
     user: req.user,
   });
 
-  // add video to channel (if exists)
+  // add video to channel
   if (channelId) {
     await Channel.findByIdAndUpdate(channelId, {
       $push: { videos: video._id },
     });
   }
 
-  res.status(201).json(video);
+  res.status(201).json({
+    success: true,
+    message: "Video created successfully",
+    data: video,
+  });
 });
 
 
@@ -48,10 +57,14 @@ export const getAllVideos = asyncHandler(async (req, res) => {
     .pagination();
 
   const videos = await features.query
-    .populate("user", "username")
+    .populate("user", "username avatar")
     .populate("channel", "channelName");
 
-  res.json(videos);
+  res.json({
+    success: true,
+    count: videos.length,
+    data: videos,
+  });
 });
 
 
@@ -60,18 +73,21 @@ export const getAllVideos = asyncHandler(async (req, res) => {
 // ==============================
 export const getVideoById = asyncHandler(async (req, res) => {
   const video = await Video.findById(req.params.id)
-    .populate("user", "username")
+    .populate("user", "username avatar")
     .populate("channel", "channelName");
 
   if (!video) {
-    return res.status(404).json({ message: "Video not found" });
+    return res.status(404).json({ success: false, message: "Video not found" });
   }
 
-  // increment views every time video is opened
+  // increment views
   video.views += 1;
   await video.save();
 
-  res.json(video);
+  res.json({
+    success: true,
+    data: video,
+  });
 });
 
 
@@ -82,20 +98,27 @@ export const updateVideo = asyncHandler(async (req, res) => {
   const video = await Video.findById(req.params.id);
 
   if (!video) {
-    return res.status(404).json({ message: "Video not found" });
+    return res.status(404).json({ success: false, message: "Video not found" });
   }
 
-  // only owner can update
+  // secure ownership check
   if (video.user.toString() !== req.user) {
-    return res.status(403).json({ message: "Not authorized" });
+    return res.status(403).json({ success: false, message: "Not authorized" });
   }
 
-  // update fields dynamically
-  Object.assign(video, req.body);
+  // prevent invalid title update
+  if (req.body.title && req.body.title.length < 3) {
+    return res.status(400).json({ success: false, message: "Title too short" });
+  }
 
+  Object.assign(video, req.body);
   await video.save();
 
-  res.json(video);
+  res.json({
+    success: true,
+    message: "Video updated successfully",
+    data: video,
+  });
 });
 
 
@@ -106,15 +129,14 @@ export const deleteVideo = asyncHandler(async (req, res) => {
   const video = await Video.findById(req.params.id);
 
   if (!video) {
-    return res.status(404).json({ message: "Video not found" });
+    return res.status(404).json({ success: false, message: "Video not found" });
   }
 
-  // only owner can delete
   if (video.user.toString() !== req.user) {
-    return res.status(403).json({ message: "Not authorized" });
+    return res.status(403).json({ success: false, message: "Not authorized" });
   }
 
-  // remove video from channel (IMPORTANT FIX)
+  // maintain data consistency
   if (video.channel) {
     await Channel.findByIdAndUpdate(video.channel, {
       $pull: { videos: video._id },
@@ -123,33 +145,36 @@ export const deleteVideo = asyncHandler(async (req, res) => {
 
   await video.deleteOne();
 
-  res.json({ message: "Video deleted successfully" });
+  res.json({
+    success: true,
+    message: "Video deleted successfully",
+  });
 });
 
 
 // ==============================
-// LIKE VIDEO (USER-BASED)
+// LIKE VIDEO
 // ==============================
 export const likeVideo = asyncHandler(async (req, res) => {
   const video = await Video.findById(req.params.id);
 
   if (!video) {
-    return res.status(404).json({ message: "Video not found" });
+    return res.status(404).json({ success: false, message: "Video not found" });
   }
 
-  // if already liked → remove like
-  if (video.likes.includes(req.user)) {
-    video.likes.pull(req.user);
-  } else {
-    video.likes.push(req.user);
+  const userId = req.user;
 
-    // remove dislike if exists
-    video.dislikes.pull(req.user);
+  if (video.likes.includes(userId)) {
+    video.likes.pull(userId);
+  } else {
+    video.likes.push(userId);
+    video.dislikes.pull(userId);
   }
 
   await video.save();
 
   res.json({
+    success: true,
     likes: video.likes.length,
     dislikes: video.dislikes.length,
   });
@@ -157,27 +182,28 @@ export const likeVideo = asyncHandler(async (req, res) => {
 
 
 // ==============================
-// DISLIKE VIDEO (USER-BASED)
+// DISLIKE VIDEO
 // ==============================
 export const dislikeVideo = asyncHandler(async (req, res) => {
   const video = await Video.findById(req.params.id);
 
   if (!video) {
-    return res.status(404).json({ message: "Video not found" });
+    return res.status(404).json({ success: false, message: "Video not found" });
   }
 
-  if (video.dislikes.includes(req.user)) {
-    video.dislikes.pull(req.user);
-  } else {
-    video.dislikes.push(req.user);
+  const userId = req.user;
 
-    // remove like if exists
-    video.likes.pull(req.user);
+  if (video.dislikes.includes(userId)) {
+    video.dislikes.pull(userId);
+  } else {
+    video.dislikes.push(userId);
+    video.likes.pull(userId);
   }
 
   await video.save();
 
   res.json({
+    success: true,
     likes: video.likes.length,
     dislikes: video.dislikes.length,
   });
