@@ -7,7 +7,7 @@ import {
   getChannel,
   getChannelVideos,
   deleteChannel,
-} from "../controllers/ChannelController.js";
+} from "../controllers/channelController.js";
 
 const router = express.Router();
 
