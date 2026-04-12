@@ -31,6 +31,8 @@ app.get("/", (req, res) => {
   res.send("API running");
 });
 
-app.listen(process.env.PORT || 5000, () => {
-  console.log("Server started");
+const PORT = process.env.PORT || 5000;
+app.listen(PORT, () => {
+  console.log(`Server running on port ${PORT}`);
+  console.log(`API Base URL: http://localhost:${PORT}/api`);
 });
