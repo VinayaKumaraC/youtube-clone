@@ -12,37 +12,33 @@ import asyncHandler from "../utils/asyncHandler.js";
 // CREATE VIDEO
 // ==============================
 export const createVideo = asyncHandler(async (req, res) => {
-  const { title, description, videoUrl, category, channelId } = req.body;
+  const { title, description, videoUrl, thumbnail, category, channelId } = req.body;
 
-  // strong validation
-  if (!title || title.trim().length < 3) {
-    return res.status(400).json({ success: false, message: "Title must be at least 3 characters" });
-  }
-
-  if (!videoUrl) {
-    return res.status(400).json({ success: false, message: "Video URL is required" });
-  }
+  if (!title || !videoUrl || !category || !channelId) {
+      return res.status(400).json({ message: "Missing required fields" });
+    }
 
   const video = await Video.create({
-    title: title.trim(),
+    title,
     description,
     videoUrl,
+    thumbnail,
     category,
-    channel: channelId || null,
-    user: req.user,
+    channel: channelId,
+    user: req.user._id   // ✅ FIX
   });
 
-  // add video to channel
+  // attach to channel
   if (channelId) {
     await Channel.findByIdAndUpdate(channelId, {
-      $push: { videos: video._id },
+      $push: { videos: video._id }
     });
   }
 
   res.status(201).json({
     success: true,
-    message: "Video created successfully",
-    data: video,
+    message: "Video uploaded successfully",
+    data: video
   });
 });
 
@@ -102,7 +98,7 @@ export const updateVideo = asyncHandler(async (req, res) => {
   }
 
   // secure ownership check
-  if (video.user.toString() !== req.user) {
+  if (video.user.toString() !== req.user._id.toString()) {
     return res.status(403).json({ success: false, message: "Not authorized" });
   }
 
@@ -132,7 +128,7 @@ export const deleteVideo = asyncHandler(async (req, res) => {
     return res.status(404).json({ success: false, message: "Video not found" });
   }
 
-  if (video.user.toString() !== req.user) {
+  if (video.user.toString() !== req.user._id.toString()) {
     return res.status(403).json({ success: false, message: "Not authorized" });
   }
 

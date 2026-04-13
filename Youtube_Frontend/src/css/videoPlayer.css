@@ -473,3 +473,142 @@ body {
         max-width: 150px;
     }
 }
+
+/* ==============================
+   💬 COMMENT INPUT (IMPROVED)
+============================== */
+.video-player-add-comment {
+    display: flex;
+    align-items: center;
+    gap: 0.8rem;
+    margin-bottom: 1.5rem;
+}
+
+.video-player-add-comment img {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+}
+
+.video-player-comment-input {
+    flex: 1;
+    padding: 0.6rem 1rem;
+    border-radius: 20px;
+    border: 1px solid #ccc;
+    font-size: 1rem;
+    background: #fff;
+    transition: all 0.2s ease;
+}
+
+.video-player-comment-input:focus {
+    border: 1.5px solid #065fd4;
+    box-shadow: 0 0 0 2px rgba(6,95,212,0.1);
+}
+
+/* ==============================
+   💬 COMMENT ITEM
+============================== */
+.video-player-comment {
+    display: flex;
+    gap: 0.8rem;
+}
+
+.video-player-comment-body {
+    width: 100%;
+}
+
+/* username + time */
+.video-player-comment-header {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.video-player-comment-username {
+    font-weight: 600;
+}
+
+.video-player-comment-time {
+    font-size: 0.85rem;
+    color: #777;
+}
+
+/* text */
+.video-player-comment-text {
+    margin-top: 2px;
+    line-height: 1.4;
+}
+
+/* ==============================
+   ✏️ EDIT INPUT
+============================== */
+.comment-edit-box {
+    display: flex;
+    gap: 0.5rem;
+    margin-top: 5px;
+}
+
+.comment-edit-box input {
+    flex: 1;
+    padding: 5px 10px;
+    border-radius: 20px;
+    border: 1px solid #ccc;
+}
+
+.comment-edit-box button {
+    border: none;
+    background: #065fd4;
+    color: #fff;
+    padding: 5px 12px;
+    border-radius: 15px;
+    cursor: pointer;
+}
+
+/* ==============================
+   ⚙️ ACTION MENU (3 DOTS)
+============================== */
+.comment-meatball {
+    margin-left: auto;
+    cursor: pointer;
+}
+
+.comment-menu-dropdown {
+    right: 0;
+    top: 20px;
+}
+
+/* ==============================
+   🧾 ACTION BUTTONS (FALLBACK)
+============================== */
+.comment-actions {
+    display: flex;
+    gap: 10px;
+    margin-top: 4px;
+}
+
+.comment-actions button {
+    border: none;
+    background: transparent;
+    color: #065fd4;
+    font-size: 0.9rem;
+    cursor: pointer;
+    padding: 2px 4px;
+}
+
+.comment-actions button:hover {
+    text-decoration: underline;
+}
+
+/* delete color */
+.comment-actions button:last-child {
+    color: #e53935;
+}
+
+/* ==============================
+   ✨ HOVER EFFECT
+============================== */
+.video-player-comment:hover {
+    background: #f9f9f9;
+    border-radius: 8px;
+    padding: 6px;
+}

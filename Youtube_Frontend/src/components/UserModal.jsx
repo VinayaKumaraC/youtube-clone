@@ -38,7 +38,7 @@ function UserModal({ onClose, setShowModal }) {
                 <div className="user-modal-header">
 
                     {/* show user avatar, username, etc */}
-                    <img src={user.avatar} alt={user.username} className="user-modal-avatar" />
+                    <img src="https://img.icons8.com/?size=96&id=13042&format=png" alt={user.username} className="user-modal-avatar" />
                     <div className="user-modal-info">
                         <div className="user-modal-username">{user.username}</div>
                         <div className="user-modal-userid">@{user._id?.toLowerCase().replace(/\s/g, '') || 'user'}</div>

@@ -5,9 +5,23 @@ import { useOutletContext } from 'react-router-dom'
 
 import API from '../api/axios.js'
 
+// VideoList component
 function VideoList({ sidebarOpen }) {
 
-    const categories = ["All", "Programming", "Tech", "Design", "AI", "Gaming", "Vlogs", "Music", "Education"]
+    // ✅ include all categories present in DB
+    const categories = [
+        "All",
+        "Programming",
+        "Tech",
+        "Design",
+        "AI",
+        "Gaming",
+        "Vlogs",
+        "Music",
+        "Education",
+        "News",
+        "Sports"
+    ]
 
     const [videos, setVideos] = useState([])
     const [selectedCategory, setSelectedCategory] = useState("All")
@@ -19,15 +33,20 @@ function VideoList({ sidebarOpen }) {
         setSearchActive
     } = useOutletContext()
 
+    // ==============================
+    // 🎥 FETCH VIDEOS FROM BACKEND
+    // ==============================
     useEffect(() => {
 
         const fetchVideos = async () => {
             try {
                 let query = ""
 
+                // search
                 if (searchActive && searchedVal.trim()) {
                     query = `?search=${searchedVal}`
-                } 
+                }
+                // category
                 else if (selectedCategory !== "All") {
                     query = `?category=${selectedCategory}`
                 }
@@ -36,8 +55,8 @@ function VideoList({ sidebarOpen }) {
 
                 console.log("API response:", data)
 
-                // ✅ FINAL FIX
-                setVideos(data.videos || [])
+                // ✅ handle backend structure safely
+                setVideos(Array.isArray(data.data) ? data.data : [])
 
             } catch (err) {
                 console.error("❌ Failed to load videos:", err.message)
@@ -50,6 +69,9 @@ function VideoList({ sidebarOpen }) {
     }, [selectedCategory, searchedVal, searchActive])
 
 
+    // ==============================
+    // 🎯 CATEGORY CLICK
+    // ==============================
     const handleCategoryClick = (cat) => {
         setSelectedCategory(cat)
         setSearchedVal("")
@@ -62,6 +84,7 @@ function VideoList({ sidebarOpen }) {
     return (
         <div className='home-page'>
 
+            {/* 🔘 Category filter buttons */}
             <div className='filter-options'>
                 {categories.map(cat => (
                     <button
@@ -74,6 +97,7 @@ function VideoList({ sidebarOpen }) {
                 ))}
             </div>
 
+            {/* 🎬 Video Grid */}
             <div className='videoList'>
 
                 {videos.length === 0 ? (

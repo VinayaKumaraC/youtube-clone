@@ -1,8 +1,8 @@
-import React, { useState, useEffect } from 'react'
-import { Link, useOutletContext } from 'react-router-dom' // import outlet context for getting sideBar
-import axios from 'axios'; // import axios for calling APIs
-import '../css/channel.css' // import css for styling
-import { useAuth } from '../contexts/AuthContext.jsx'; // import authContext for 'Logged-in User'
+import React, { useState, useEffect } from "react";
+import { Link, useOutletContext } from "react-router-dom"; // import outlet context for getting sideBar
+import api from "../api/axios.js"; // import axios for calling APIs
+import "../css/channel.css"; // import css for styling
+import { useAuth } from "../contexts/AuthContext.jsx"; // import authContext for 'Logged-in User'
 
 // import icons from react-icons
 import { BsThreeDotsVertical } from "react-icons/bs";
@@ -26,11 +26,11 @@ function YourChannel() {
 
   // Upload/edit form state
   const initialForm = {
-    title: '',
-    videoLink: '',
-    thumbnail: '',
-    description: '',
-    category: ''
+    title: "",
+    videoLink: "",
+    thumbnail: "",
+    description: "",
+    category: "",
   };
   const [form, setForm] = useState(initialForm);
   const [formLoading, setFormLoading] = useState(false);
@@ -41,47 +41,51 @@ function YourChannel() {
     channelName: "",
     channelBanner: "",
     channelPic: "",
-    description: ""
+    description: "",
   });
   const [channelEditLoading, setChannelEditLoading] = useState(false);
 
   // Fetch channel and videos on mount
   useEffect(() => {
-        if (!user?.channelId) return;
-        setLoading(true);
-        setError(null);
-        axios.get(`http://localhost:5100/api/channel/${user.channelId}`) // call API to get channels videos
-            .then(res => {
+    if (!user?.channelId) return;
+    setLoading(true);
+    setError(null);
+    api
+      .get(`/channels/${user.channelId}`) // call API to get channels videos
+      .then((res) => {
+        // set videos and channel into states
+        const data = res.data.data || res.data;
 
-                // set videos and channel into states
-                setChannel(res.data);
-                setVideos(res.data.videos || []);
-            })
-            .catch(err => {
-                setError("Failed to load channel."); // if any error is caught
-            })
-            .finally(() => setLoading(false)); // finally set loading to false
-    }, [user?.channelId]);
-
+        setChannel(data);
+        setVideos(data.videos || []);
+      })
+      .catch((err) => {
+        setError("Failed to load channel."); // if any error is caught
+      })
+      .finally(() => setLoading(false)); // finally set loading to false
+  }, [user?.channelId]);
 
   // description logic for collapsing and expanding
   const descLimit = 180;
-  const showMore = channel && channel.description && channel.description.length > descLimit;
-  const descToShow = channel && channel.description
-    ? (descExpanded ? channel.description : channel.description.slice(0, descLimit))
-    : "";
+  const showMore =
+    channel && channel.description && channel.description.length > descLimit;
+  const descToShow =
+    channel && channel.description
+      ? descExpanded
+        ? channel.description
+        : channel.description.slice(0, descLimit)
+      : "";
 
   // API for deleting a video
   const handleDelete = async (id) => {
     if (!window.confirm("Delete this video?")) return;
     try {
-      await axios.delete(
-        `http://localhost:5100/api/video/${id}`,
-        { headers: { Authorization: `Bearer ${user.token}` } } // send JWT token in header
+      await api.delete(
+        `/videos/${id}`,
       );
 
       // re-filter the videos on frontend without the deleted video
-      setVideos(videos => videos.filter(v => v._id !== id));
+      setVideos((videos) => videos.filter((v) => v._id !== id));
       setMenuOpen(null);
     } catch (err) {
       alert("Failed to delete video"); // alert if anything goes wrong
@@ -96,64 +100,63 @@ function YourChannel() {
 
   // Open edit modal
   const handleEdit = (id) => {
-    const video = videos.find(v => v._id === id);
+    const video = videos.find((v) => v._id === id);
     if (video) {
       setEditVideo(video);
       setForm({
-        title: video.title || '',
-        videoLink: video.videoLink || '',
-        thumbnail: video.thumbnail || '',
-        description: video.description || '',
-        category: video.category || ''
+        title: video.title || "",
+        videoLink: video.videoUrl || "",
+        thumbnail: video.thumbnail || "",
+        description: video.description || "",
+        category: video.category || "",
       });
       setShowEdit(true);
     }
     setMenuOpen(null);
   };
 
-  // Upload video
-  const handleUploadSubmit = async (e) => {
-    e.preventDefault();
-    setFormLoading(true);
+  // Upload video (FINAL CLEAN VERSION)
+ const handleUploadSubmit = async (e) => {
+  e.preventDefault();
+  setFormLoading(true);
 
-    // Trim all fields (validation so empty fields can't be pushed into database)
-    const trimmed = {
-      title: form.title.trim(),
-      videoLink: form.videoLink.trim(),
-      thumbnail: form.thumbnail.trim(),
-      description: form.description.trim(),
-      category: form.category.trim()
-    };
-
-    // Check required fields
-    if (!trimmed.title || !trimmed.videoLink || !trimmed.thumbnail) {
-      alert("Please fill in all required fields.");
-      setFormLoading(false);
-      return;
-    }
-
-    // API calling for uploading the video
-    try {
-      await axios.post(
-        "http://localhost:5100/api/video",
-        trimmed,
-        { headers: { Authorization: `Bearer ${user.token}` } }
-      );
-      // Refresh videos (get channel again with new video this time)
-      const res = await axios.get(`http://localhost:5100/api/channel/${user.channelId}`);
-      setChannel(res.data);
-      setVideos(res.data.videos || []);
-      setShowUpload(false);
-      setForm(initialForm);
-    } catch (err) {
-
-      // send alert if video could not be uploaded
-      alert("Failed to upload video: " + (err.response?.data?.message || err.message));
-    } finally {
-      setFormLoading(false);
-    }
+  // ✅ create payload properly
+  const payload = {
+    title: form.title.trim(),
+    videoUrl: form.videoLink.trim(),
+    thumbnail: form.thumbnail.trim(),
+    description: form.description.trim(),
+    category: form.category.trim(),
+    channelId: user.channelId
   };
 
+  // ✅ validation
+  if (!payload.title || !payload.videoUrl || !payload.category || !payload.thumbnail) {
+    alert("Please fill required fields");
+    setFormLoading(false);
+    return;
+  }
+
+  try {
+    // ✅ DON'T manually pass token (interceptor handles it)
+    await api.post("/videos", payload);
+
+    const res = await api.get(`/channels/${user.channelId}`);
+    const channel = res.data.data || res.data;
+
+    setChannel(channel);
+    setVideos(channel.videos || []);
+
+    setShowUpload(false);
+    setForm(initialForm);
+
+  } catch (err) {
+    console.error(err);
+    alert(err.response?.data?.message || "Upload failed");
+  } finally {
+    setFormLoading(false);
+  }
+};
   // Edit video logic
   const handleEditSubmit = async (e) => {
     e.preventDefault(); // stops page from reloading
@@ -163,10 +166,10 @@ function YourChannel() {
     // Trim all fields
     const trimmed = {
       title: form.title.trim(),
-      videoLink: form.videoLink.trim(),
+      videoUrl: form.videoLink.trim(),
       thumbnail: form.thumbnail.trim(),
       description: form.description.trim(),
-      category: form.category.trim()
+      category: form.category.trim(),
     };
 
     // Check required fields
@@ -176,20 +179,22 @@ function YourChannel() {
       return;
     }
     try {
-      await axios.put(
-        `http://localhost:5100/api/video/${editVideo._id}`, // API calling for editing videos
+      await api.put(
+        `/videos/${editVideo._id}`, // API calling for editing videos
         trimmed,
-        { headers: { Authorization: `Bearer ${user.token}` } }
       );
       // Refresh videos after update
-      const res = await axios.get(`http://localhost:5100/api/channel/${user.channelId}`);
+      const res = await api.get(`/channels/${user.channelId}`);
       setChannel(res.data);
       setVideos(res.data.videos || []);
       setShowEdit(false);
       setEditVideo(null);
       setForm(initialForm);
     } catch (err) {
-      alert("Failed to update video: " + (err.response?.data?.message || err.message));
+      alert(
+        "Failed to update video: " +
+          (err.response?.data?.message || err.message),
+      );
     } finally {
       setFormLoading(false);
     }
@@ -201,13 +206,13 @@ function YourChannel() {
       channelName: channel.channelName || "",
       channelBanner: channel.channelBanner || "",
       channelPic: channel.channelPic || "",
-      description: channel.description || ""
+      description: channel.description || "",
     });
     setShowEditChannel(true);
   };
 
   // controlled input for channel edit form fields
-  const handleChannelEditChange = e => {
+  const handleChannelEditChange = (e) => {
     setChannelEditForm({ ...channelEditForm, [e.target.name]: e.target.value });
   };
 
@@ -219,7 +224,7 @@ function YourChannel() {
       channelName: channelEditForm.channelName.trim(),
       channelBanner: channelEditForm.channelBanner.trim(),
       channelPic: channelEditForm.channelPic.trim(),
-      description: channelEditForm.description.trim()
+      description: channelEditForm.description.trim(),
     };
     // Check required fields
     if (!trimmed.channelName) {
@@ -228,39 +233,41 @@ function YourChannel() {
       return;
     }
     try {
-      await axios.put( // put API for editing channel
-        `http://localhost:5100/api/updateChannel/${channel._id}`,
-        trimmed,
-        { headers: { Authorization: `Bearer ${user.token}` } } // JWT sent in header
-      );
+      await api.put(`/channels/${channel._id}`, trimmed, {
+      });
       // Refresh channel data
-      const res = await axios.get(`http://localhost:5100/api/channel/${user.channelId}`);
+      const res = await api.get(`/channels/${user.channelId}`);
       setChannel(res.data);
       setShowEditChannel(false);
     } catch (err) {
-      alert("Failed to update channel: " + (err.response?.data?.message || err.message));
+      alert(
+        "Failed to update channel: " +
+          (err.response?.data?.message || err.message),
+      );
     } finally {
       setChannelEditLoading(false);
     }
   };
 
-  const handleFormChange = e => {
+  const handleFormChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
 
   if (loading) return <div style={{ padding: 32 }}>Loading...</div>;
-  if (error) return <div style={{ padding: 32, color: 'red' }}>{error}</div>;
+  if (error) return <div style={{ padding: 32, color: "red" }}>{error}</div>;
   if (!channel) return null; // if channel does not exist, show nothing
 
   return (
     <div className="channel-page" style={{ flex: 1 }}>
-
       {/* Channel Edit Modal ------------------------------------------------- */}
       {showEditChannel && (
         <div className="edit-channel-modal-bg">
           <div className="edit-channel-modal">
             <h2 className="edit-channel-title">Edit Channel Details</h2>
-            <form className="edit-channel-form" onSubmit={handleChannelEditSave}>
+            <form
+              className="edit-channel-form"
+              onSubmit={handleChannelEditSave}
+            >
               <label className="edit-channel-label">Channel Name</label>
               <input
                 className="edit-channel-input"
@@ -291,7 +298,10 @@ function YourChannel() {
                 onChange={handleChannelEditChange}
               />
               <img
-                src={channelEditForm.channelBanner || "https://placehold.co/600x150.png?text=Banner"}
+                src={
+                  channelEditForm.channelBanner ||
+                  "https://img.youtube.com/vi/7u6-hMqBoWo/mqdefault.jpg"
+                }
                 alt="Banner preview"
                 className="edit-channel-banner-preview"
               />
@@ -305,7 +315,10 @@ function YourChannel() {
                 onChange={handleChannelEditChange}
               />
               <img
-                src={channelEditForm.channelPic || "https://placehold.co/100x100.png?text=channel"}
+                src={
+                  channelEditForm.channelPic ||
+                  "https://img.youtube.com/vi/7u6-hMqBoWo/mqdefault.jpg"
+                }
                 alt="Avatar preview"
                 className="edit-channel-avatar-preview"
               />
@@ -402,7 +415,12 @@ function YourChannel() {
                 <button
                   type="submit"
                   className="create-channel-submit"
-                  disabled={!form.title || !form.videoLink || !form.thumbnail || formLoading}
+                  disabled={
+                    !form.title ||
+                    !form.videoLink ||
+                    !form.thumbnail ||
+                    formLoading
+                  }
                 >
                   {formLoading ? "Uploading..." : "Upload"}
                 </button>
@@ -473,7 +491,10 @@ function YourChannel() {
                 <button
                   type="button"
                   className="create-channel-cancel"
-                  onClick={() => { setShowEdit(false); setEditVideo(null); }}
+                  onClick={() => {
+                    setShowEdit(false);
+                    setEditVideo(null);
+                  }}
                   disabled={formLoading}
                 >
                   Cancel
@@ -481,7 +502,12 @@ function YourChannel() {
                 <button
                   type="submit"
                   className="create-channel-submit"
-                  disabled={!form.title || !form.videoLink || !form.thumbnail || formLoading}
+                  disabled={
+                    !form.title ||
+                    !form.videoLink ||
+                    !form.thumbnail ||
+                    formLoading
+                  }
                 >
                   {formLoading ? "Saving..." : "Save"}
                 </button>
@@ -495,28 +521,50 @@ function YourChannel() {
       <div className="channel-banner-container">
         <img
           className="channel-banner"
-          src={channel.channelBanner || "https://placehold.co/600x150.png?text=Banner"}
+          src= {
+            channel.channelBanner ||
+            "https://img.youtube.com/vi/7u6-hMqBoWo/mqdefault.jpg"
+          }
           alt="Channel banner"
         />
       </div>
       <div className="channel-header">
-        <img className="channel-avatar" src={channel.channelPic || "https://placehold.co/100x100.png?text=channel"} alt={channel.channelName} />
+        <img
+          className="channel-avatar"
+          src={
+            channel.channelPic ||
+            "https://img.youtube.com/vi/vhAktHXCX8I/mqdefault.jpg"
+          }
+          alt={channel.channelName}
+        />
         <div className="channel-info">
           <div className="channel-title">{channel.channelName}</div>
           <div className="channel-meta">
-            <span className="channel-handle">@{channel.channelName?.toLowerCase().replace(/\s/g, '')}-ic4ou</span>
+            <span className="channel-handle">
+              @{channel.channelName?.toLowerCase().replace(/\s/g, "")}-ic4ou
+            </span>
             <span className="channel-dot">·</span>
-            <span className="channel-subs">{channel.subscribers} subscribers</span>
+            <span className="channel-subs">
+              {channel.subscribers} subscribers
+            </span>
             <span className="channel-dot">·</span>
             <span className="channel-videos">{videos.length} videos</span>
           </div>
           <div className="channel-desc">
             {descToShow}
             {showMore && !descExpanded && (
-              <span className="desc-more" onClick={() => setDescExpanded(true)}>...more</span>
+              <span className="desc-more" onClick={() => setDescExpanded(true)}>
+                ...more
+              </span>
             )}
             {showMore && descExpanded && (
-              <span className="desc-less" onClick={() => setDescExpanded(false)}> Show less</span>
+              <span
+                className="desc-less"
+                onClick={() => setDescExpanded(false)}
+              >
+                {" "}
+                Show less
+              </span>
             )}
           </div>
           <div className="channel-actions">
@@ -539,36 +587,54 @@ function YourChannel() {
         <div className="channel-tab">Posts</div>
       </div>
       <div className="channel-videos-list">
-
         {/* map over videos array state to render video cards on channel */}
-        {videos.map(video => (
+        {videos.map((video) => (
           <div className="channel-video-card" key={video._id}>
-            <Link to={`/video/${video._id}`}>
-              <img className="channel-video-thumb" src={video.thumbnail} alt={video.title} />
+            <Link to={`/videos/${video._id}`}>
+              <img
+                className="channel-video-thumb"
+                src={video.thumbnail}
+                alt={video.title}
+              />
             </Link>
             <div className="channel-video-info">
               <div className="channel-video-title">{video.title}</div>
               <div className="channel-video-meta">
                 <span>{video.views} views</span>
                 <span className="channel-dot">·</span>
-                <span>{video.uploadDate? new Date(video.uploadDate).toLocaleDateString("en-US", {year: "numeric",month: "long",day: "numeric"}): ""}</span>
+                <span>
+                  {video.uploadDate
+                    ? new Date(video.uploadDate).toLocaleDateString("en-US", {
+                        year: "numeric",
+                        month: "long",
+                        day: "numeric",
+                      })
+                    : ""}
+                </span>
               </div>
             </div>
             <div className="channel-video-actions">
               <span
                 className="channel-video-meatball"
                 tabIndex={0}
-                onClick={() => setMenuOpen(menuOpen === video._id ? null : video._id)}
+                onClick={() =>
+                  setMenuOpen(menuOpen === video._id ? null : video._id)
+                }
               >
-
                 {/* meatball icons for editing and deleting video */}
                 <BsThreeDotsVertical />
                 {menuOpen === video._id && (
                   <div className="channel-video-dropdown">
-                    <button className="channel-video-dropdown-item" onClick={() => handleEdit(video._id)}>
+                    <button
+                      className="channel-video-dropdown-item"
+                      onClick={() => handleEdit(video._id)}
+                    >
                       <MdEdit style={{ marginRight: 6 }} /> Edit
                     </button>
-                    <button className="channel-video-dropdown-item delete" onClick={() => handleDelete(video._id)}>
+                    <button
+                      className="channel-video-dropdown-item delete"
+                      onClick={() => handleDelete(video._id)}
+                    >
                       <MdDelete style={{ marginRight: 6 }} /> Delete
                     </button>
                   </div>
@@ -579,7 +645,7 @@ function YourChannel() {
         ))}
       </div>
     </div>
-  )
+  );
 }
 
-export default YourChannel // export yourChannel component
+export default YourChannel; // export yourChannel component

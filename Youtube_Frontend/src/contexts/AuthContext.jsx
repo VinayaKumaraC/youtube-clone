@@ -10,16 +10,27 @@ export const useAuth = () => useContext(AuthContext);
 export const AuthProvider = ({ children }) => {
     const [user, setUser] = useState(null);
 
-    // load user from localStorage on app start
+    // ==============================
+    // 🔁 LOAD USER ON APP START
+    // ==============================
     useEffect(() => {
         const storedUser = localStorage.getItem("user");
+        const token = localStorage.getItem("token");
 
-        if (storedUser) {
-            setUser(JSON.parse(storedUser));
+        if (storedUser && token) {
+            const parsedUser = JSON.parse(storedUser);
+
+            // ✅ attach token again (CRITICAL FIX)
+            setUser({
+                ...parsedUser,
+                token: token
+            });
         }
     }, []);
 
-    // save user whenever it changes
+    // ==============================
+    // 💾 SAVE USER ON CHANGE
+    // ==============================
     useEffect(() => {
         if (user) {
             localStorage.setItem("user", JSON.stringify(user));
@@ -28,7 +39,9 @@ export const AuthProvider = ({ children }) => {
         }
     }, [user]);
 
-    // logout function (important for UI + marks)
+    // ==============================
+    // 🚪 LOGOUT
+    // ==============================
     const logout = () => {
         localStorage.removeItem("token");
         localStorage.removeItem("user");

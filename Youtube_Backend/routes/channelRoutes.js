@@ -8,6 +8,8 @@ import {
   getChannelVideos,
   deleteChannel,
 } from "../controllers/channelController.js";
+import { updateChannel } from "../controllers/channelController.js";
+
 
 const router = express.Router();
 
@@ -19,6 +21,8 @@ router.get("/:id", getChannel);
 
 // get channel videos
 router.get("/:id/videos", getChannelVideos);
+
+router.put("/:id", authMiddleware, updateChannel);
 
 // delete channel (bonus)
 router.delete("/:id", authMiddleware, deleteChannel);

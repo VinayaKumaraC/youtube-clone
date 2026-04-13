@@ -15,6 +15,7 @@ import authMiddleware from "../middleware/authMiddleware.js";
 import { videoValidator } from "../validators/videoValidator.js";
 import { validationResult } from "express-validator";
 
+
 const router = express.Router();
 
 
@@ -63,5 +64,6 @@ router.delete("/:id", authMiddleware, deleteVideo);
 // like / dislike
 router.put("/:id/like", authMiddleware, likeVideo);
 router.put("/:id/dislike", authMiddleware, dislikeVideo);
+
 
 export default router;

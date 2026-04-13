@@ -21,7 +21,7 @@ export const createChannel = asyncHandler(async (req, res) => {
   const channel = await Channel.create({
     channelName,
     description,
-    owner: req.user,
+    owner: req.user._id,
   });
 
   res.status(201).json(channel);
@@ -70,7 +70,7 @@ export const deleteChannel = asyncHandler(async (req, res) => {
   }
 
   // only owner can delete
-  if (channel.owner.toString() !== req.user) {
+  if (channel.owner.toString() !== req.user._id.toString()) {
     return res.status(403).json({ message: "Not authorized" });
   }
 
@@ -80,4 +80,28 @@ export const deleteChannel = asyncHandler(async (req, res) => {
   await channel.deleteOne();
 
   res.json({ message: "Channel deleted successfully" });
+});
+
+// ==============================
+// EDit CHANNEL + ALL ITS VIDEOS
+// ==============================
+export const updateChannel = asyncHandler(async (req, res) => {
+  const channel = await Channel.findById(req.params.id);
+
+  if (!channel) {
+    return res.status(404).json({ message: "Channel not found" });
+  }
+
+  if (channel.owner.toString() !== req.user._id.toString()) {
+    return res.status(403).json({ message: "Not authorized" });
+  }
+
+  channel.channelName = req.body.channelName || channel.channelName;
+  channel.description = req.body.description || channel.description;
+  channel.channelPic = req.body.channelPic || channel.channelPic;
+  channel.channelBanner = req.body.channelBanner || channel.channelBanner;
+
+  const updated = await channel.save();
+
+  res.json(updated);
 });

@@ -2,7 +2,7 @@ import React, { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { useAuth } from '../contexts/AuthContext.jsx'; // import logged in user from context
 import UserModal from './UserModal.jsx' // import userModal to be called from Header
-import axios from 'axios'; // import axios for calling APIs
+import api   from '../api/axios.js'; // import axios for calling APIs
 import '../css/homePage.css' // import css for styling
 import '../css/registerLogin.css'
 import '../css/createChannel.css'
@@ -68,9 +68,7 @@ function Header({ sidebarOpen, setSidebarOpen, searchedVal, setSearchedVal, onSe
         }
         try {
             // user is available from context
-            await axios.post( // send post request to API for uploadig new video
-                "http://localhost:5100/api/video",
-                trimmed,
+            await api.post( "/video",trimmed,
 
                 // send JWT token in header
                 { headers: { Authorization: `Bearer ${user.token}` } }
@@ -215,7 +213,7 @@ function Header({ sidebarOpen, setSidebarOpen, searchedVal, setSearchedVal, onSe
                     {user ? (
                         <>
                             <img
-                                src={user.avatar}
+                                src={user.avatar} 
                                 alt="User"
                                 className="header-avatar"
                                 onClick={() => setShowModal(v => !v)} // on clicking icon, show userModal
