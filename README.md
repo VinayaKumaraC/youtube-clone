@@ -185,20 +185,13 @@ npm run dev
 * Authentication & authorization
 * Database relationships & optimization
 * Git & version control
-
----
-
-## 📸 Screenshots (Optional)
-
-*Add screenshots here for better presentation*
-
 ---
 
 ## 👨‍💻 Author
 
 **Vinaya Kumara C**
 
----
+
 
 ## ⭐ Conclusion
 
